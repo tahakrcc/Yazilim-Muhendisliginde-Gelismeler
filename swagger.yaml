@@ -1,0 +1,1749 @@
+openapi: 3.0.3
+info:
+  title: Pazar Yönetim Sistemi API
+  description: Modern pazar yönetim sistemi için RESTful API dokümantasyonu
+  version: 1.0.0
+  contact:
+    name: Pazar Yönetim Sistemi
+    email: info@pazar.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development Server
+  - url: https://api.pazar.com
+    description: Production Server
+
+tags:
+  - name: Authentication
+    description: Kullanıcı kimlik doğrulama API'leri
+  - name: Users
+    description: Kullanıcı yönetimi API'leri
+  - name: Products
+    description: Ürün yönetimi API'leri
+  - name: Marketplaces
+    description: Pazar yönetimi API'leri
+  - name: Vendors
+    description: Satıcı yönetimi API'leri
+  - name: Vendor Products
+    description: Satıcı ürün yönetimi API'leri
+  - name: Complaints
+    description: Şikayet yönetimi API'leri
+  - name: Marketplace Change Requests
+    description: Pazar değişiklik talepleri API'leri
+  - name: Zabita Assignments
+    description: Zabıta atama API'leri
+  - name: Stall Locations
+    description: Tezgah konumu API'leri
+  - name: Chatbot
+    description: Chatbot API'leri
+  - name: Image Upload
+    description: Resim yükleme API'leri
+  - name: Health
+    description: Sistem sağlık kontrolü API'leri
+
+paths:
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Kullanıcı girişi
+      description: E-posta ve şifre ile kullanıcı girişi yapar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Başarılı giriş
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Giriş başarısız
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '500':
+          description: Sunucu hatası
+
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Kullanıcı kaydı
+      description: Yeni kullanıcı kaydı oluşturur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Başarılı kayıt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Geçersiz istek
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '500':
+          description: Sunucu hatası
+
+  /api/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Token yenileme
+      description: Refresh token ile yeni access token alır
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token başarıyla yenilendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Geçersiz refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '500':
+          description: Sunucu hatası
+
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: Tüm kullanıcıları getir
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags:
+        - Users
+      summary: Yeni kullanıcı oluştur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Kullanıcı oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Geçersiz istek
+
+  /api/users/{id}:
+    put:
+      tags:
+        - Users
+      summary: Kullanıcı güncelle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Kullanıcı güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Kullanıcı bulunamadı
+    delete:
+      tags:
+        - Users
+      summary: Kullanıcı sil
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Kullanıcı silindi
+
+  /api/users/email/{email}:
+    get:
+      tags:
+        - Users
+      summary: E-posta ile kullanıcı bul
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Kullanıcı bulundu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Kullanıcı bulunamadı
+
+  /api/users/role/{role}:
+    get:
+      tags:
+        - Users
+      summary: Role göre kullanıcıları getir
+      parameters:
+        - name: role
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [BELEDIYE, ZABITA, VENDOR, CUSTOMER]
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          description: Geçersiz role
+
+  /api/products:
+    get:
+      tags:
+        - Products
+      summary: Tüm ürünleri getir
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      tags:
+        - Products
+      summary: Yeni ürün oluştur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Ürün oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+  /api/products/{id}:
+    get:
+      tags:
+        - Products
+      summary: ID ile ürün getir
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Ürün bulunamadı
+    put:
+      tags:
+        - Products
+      summary: Ürün güncelle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Ürün güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Ürün bulunamadı
+    delete:
+      tags:
+        - Products
+      summary: Ürün sil
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ürün silindi
+        '404':
+          description: Ürün bulunamadı
+
+  /api/marketplaces:
+    get:
+      tags:
+        - Marketplaces
+      summary: Tüm pazarları getir
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarketplaceResponse'
+    post:
+      tags:
+        - Marketplaces
+      summary: Yeni pazar oluştur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Marketplace'
+      responses:
+        '200':
+          description: Pazar oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Marketplace'
+
+  /api/marketplaces/{id}:
+    get:
+      tags:
+        - Marketplaces
+      summary: ID ile pazar getir
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceResponse'
+        '404':
+          description: Pazar bulunamadı
+    put:
+      tags:
+        - Marketplaces
+      summary: Pazar güncelle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Marketplace'
+      responses:
+        '200':
+          description: Pazar güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Marketplace'
+        '404':
+          description: Pazar bulunamadı
+    delete:
+      tags:
+        - Marketplaces
+      summary: Pazar sil
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Pazar silindi
+        '404':
+          description: Pazar bulunamadı
+
+  /api/vendors:
+    get:
+      tags:
+        - Vendors
+      summary: Tüm satıcıları getir
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vendor'
+    post:
+      tags:
+        - Vendors
+      summary: Yeni satıcı oluştur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+      responses:
+        '200':
+          description: Satıcı oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+
+  /api/vendors/{id}:
+    put:
+      tags:
+        - Vendors
+      summary: Satıcı güncelle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vendor'
+      responses:
+        '200':
+          description: Satıcı güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '404':
+          description: Satıcı bulunamadı
+    delete:
+      tags:
+        - Vendors
+      summary: Satıcı sil
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Satıcı silindi
+
+  /api/vendors/{id}/marketplace:
+    put:
+      tags:
+        - Vendors
+      summary: Satıcıyı pazara ata
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                marketplaceId:
+                  type: integer
+      responses:
+        '200':
+          description: Satıcı pazara atandı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '404':
+          description: Satıcı bulunamadı
+
+  /api/vendors/marketplace/{marketplaceId}:
+    get:
+      tags:
+        - Vendors
+      summary: Pazara göre satıcıları getir
+      parameters:
+        - name: marketplaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vendor'
+
+  /api/vendors/{id}/pin-position:
+    post:
+      tags:
+        - Vendors
+      summary: Pin pozisyonunu kaydet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                marketplaceId:
+                  type: integer
+                stallLocation:
+                  type: string
+                stallNumber:
+                  type: string
+                x:
+                  type: integer
+                y:
+                  type: integer
+      responses:
+        '200':
+          description: Pozisyon kaydedildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+        '400':
+          description: Geçersiz istek
+        '404':
+          description: Satıcı bulunamadı
+
+  /api/vendors/update-names:
+    post:
+      tags:
+        - Vendors
+      summary: Tüm satıcıların isimlerini güncelle
+      responses:
+        '200':
+          description: İsimler güncellendi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /api/vendor-products:
+    post:
+      tags:
+        - Vendor Products
+      summary: Satıcı ürünü oluştur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorProduct'
+      responses:
+        '200':
+          description: Ürün oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorProduct'
+        '400':
+          description: Geçersiz istek
+        '500':
+          description: Sunucu hatası
+
+  /api/vendor-products/vendor/{vendorId}:
+    get:
+      tags:
+        - Vendor Products
+      summary: Satıcının ürünlerini getir
+      parameters:
+        - name: vendorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VendorProduct'
+
+  /api/vendor-products/search:
+    get:
+      tags:
+        - Vendor Products
+      summary: Ürün ara
+      parameters:
+        - name: productName
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VendorProduct'
+
+  /api/vendor-products/{id}:
+    put:
+      tags:
+        - Vendor Products
+      summary: Satıcı ürününü güncelle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorProduct'
+      responses:
+        '200':
+          description: Ürün güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorProduct'
+        '404':
+          description: Ürün bulunamadı
+    delete:
+      tags:
+        - Vendor Products
+      summary: Satıcı ürününü sil
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ürün silindi
+
+  /api/complaints:
+    get:
+      tags:
+        - Complaints
+      summary: Tüm şikayetleri getir
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Complaint'
+    post:
+      tags:
+        - Complaints
+      summary: Yeni şikayet oluştur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Complaint'
+      responses:
+        '200':
+          description: Şikayet oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Complaint'
+
+  /api/complaints/{id}:
+    get:
+      tags:
+        - Complaints
+      summary: ID ile şikayet getir
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Complaint'
+        '404':
+          description: Şikayet bulunamadı
+    put:
+      tags:
+        - Complaints
+      summary: Şikayet güncelle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Complaint'
+      responses:
+        '200':
+          description: Şikayet güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Complaint'
+        '404':
+          description: Şikayet bulunamadı
+    delete:
+      tags:
+        - Complaints
+      summary: Şikayet sil
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Şikayet silindi
+        '404':
+          description: Şikayet bulunamadı
+
+  /api/complaints/marketplace/{marketplaceId}:
+    get:
+      tags:
+        - Complaints
+      summary: Pazara göre şikayetleri getir
+      parameters:
+        - name: marketplaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Complaint'
+
+  /api/complaints/vendor/{vendorId}:
+    get:
+      tags:
+        - Complaints
+      summary: Satıcıya göre şikayetleri getir
+      parameters:
+        - name: vendorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Complaint'
+
+  /api/complaints/status/{status}:
+    get:
+      tags:
+        - Complaints
+      summary: Duruma göre şikayetleri getir
+      parameters:
+        - name: status
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [pending, investigating, resolved, dismissed]
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Complaint'
+
+  /api/complaints/{id}/resolve:
+    post:
+      tags:
+        - Complaints
+      summary: Şikayeti çöz
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resolutionNotes:
+                  type: string
+                fineAmount:
+                  type: number
+                  format: double
+      responses:
+        '200':
+          description: Şikayet çözüldü
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Complaint'
+        '404':
+          description: Şikayet bulunamadı
+
+  /api/marketplace-change-requests:
+    get:
+      tags:
+        - Marketplace Change Requests
+      summary: Tüm pazar değişiklik taleplerini getir
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarketplaceChangeRequest'
+    post:
+      tags:
+        - Marketplace Change Requests
+      summary: Yeni pazar değişiklik talebi oluştur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vendorId:
+                  type: integer
+                requestedMarketplaceId:
+                  type: integer
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Talep oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceChangeRequest'
+        '400':
+          description: Geçersiz istek
+
+  /api/marketplace-change-requests/pending:
+    get:
+      tags:
+        - Marketplace Change Requests
+      summary: Bekleyen talepleri getir
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarketplaceChangeRequest'
+
+  /api/marketplace-change-requests/vendor/{vendorId}:
+    get:
+      tags:
+        - Marketplace Change Requests
+      summary: Satıcıya göre talepleri getir
+      parameters:
+        - name: vendorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarketplaceChangeRequest'
+
+  /api/marketplace-change-requests/{requestId}/approve:
+    post:
+      tags:
+        - Marketplace Change Requests
+      summary: Talebi onayla
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                adminNotes:
+                  type: string
+      responses:
+        '200':
+          description: Talep onaylandı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceChangeRequest'
+        '400':
+          description: Geçersiz istek
+
+  /api/marketplace-change-requests/{requestId}/reject:
+    post:
+      tags:
+        - Marketplace Change Requests
+      summary: Talebi reddet
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                adminNotes:
+                  type: string
+      responses:
+        '200':
+          description: Talep reddedildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketplaceChangeRequest'
+        '400':
+          description: Geçersiz istek
+
+  /api/zabita-assignments:
+    get:
+      tags:
+        - Zabita Assignments
+      summary: Tüm zabıta atamalarını getir
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZabitaMarketplaceAssignment'
+    post:
+      tags:
+        - Zabita Assignments
+      summary: Zabıta'yı pazara ata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                zabitaId:
+                  type: integer
+                marketplaceId:
+                  type: integer
+      responses:
+        '200':
+          description: Zabıta atandı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZabitaMarketplaceAssignment'
+
+  /api/zabita-assignments/zabita/{zabitaId}:
+    get:
+      tags:
+        - Zabita Assignments
+      summary: Zabıtanın atandığı pazarları getir
+      parameters:
+        - name: zabitaId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+
+  /api/zabita-assignments/marketplace/{marketplaceId}:
+    get:
+      tags:
+        - Zabita Assignments
+      summary: Pazara atanan zabıtaları getir
+      parameters:
+        - name: marketplaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZabitaMarketplaceAssignment'
+
+  /api/zabita-assignments/zabita/{zabitaId}/marketplace/{marketplaceId}:
+    delete:
+      tags:
+        - Zabita Assignments
+      summary: Zabıta atamasını kaldır
+      parameters:
+        - name: zabitaId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: marketplaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Atama kaldırıldı
+
+  /api/zabita-assignments/zabitas:
+    get:
+      tags:
+        - Zabita Assignments
+      summary: Tüm zabıtaları getir
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/stall-locations:
+    post:
+      tags:
+        - Stall Locations
+      summary: Yeni tezgah oluştur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StallLocation'
+      responses:
+        '200':
+          description: Tezgah oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StallLocation'
+
+  /api/stall-locations/marketplace/{marketplaceId}:
+    get:
+      tags:
+        - Stall Locations
+      summary: Pazarın tezgahlarını getir
+      parameters:
+        - name: marketplaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StallLocation'
+
+  /api/stall-locations/{id}/assign:
+    put:
+      tags:
+        - Stall Locations
+      summary: Satıcıyı tezgaha ata
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: vendorId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Satıcı atandı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StallLocation'
+        '404':
+          description: Tezgah bulunamadı
+
+  /api/stall-locations/{id}/unassign:
+    put:
+      tags:
+        - Stall Locations
+      summary: Tezgahı boşalt
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tezgah boşaltıldı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StallLocation'
+        '404':
+          description: Tezgah bulunamadı
+
+  /api/stall-locations/{id}/position:
+    put:
+      tags:
+        - Stall Locations
+      summary: Tezgah konumunu güncelle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: positionX
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: positionY
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Konum güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StallLocation'
+        '404':
+          description: Tezgah bulunamadı
+
+  /api/chatbot/message:
+    post:
+      tags:
+        - Chatbot
+      summary: Chatbot mesajı gönder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                userLat:
+                  type: number
+                  format: double
+                userLng:
+                  type: number
+                  format: double
+                conversationHistory:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        '200':
+          description: Başarılı
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/upload/image:
+    post:
+      tags:
+        - Image Upload
+      summary: Resim yükle
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Resim yüklendi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  filename:
+                    type: string
+        '400':
+          description: Geçersiz istek
+        '500':
+          description: Sunucu hatası
+
+  /api/upload/image/{filename}:
+    delete:
+      tags:
+        - Image Upload
+      summary: Resim sil
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resim silindi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Dosya bulunamadı
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Sistem sağlık kontrolü
+      responses:
+        '200':
+          description: Sistem çalışıyor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  service:
+                    type: string
+                    example: Pazar Backend
+                  version:
+                    type: string
+                    example: 1.0.0
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: password123
+
+    LoginResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+        name:
+          type: string
+        phoneNumber:
+          type: string
+        token:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+        success:
+          type: boolean
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        role:
+          $ref: '#/components/schemas/Role'
+        name:
+          type: string
+        phoneNumber:
+          type: string
+
+    Role:
+      type: string
+      enum:
+        - BELEDIYE
+        - ZABITA
+        - VENDOR
+        - CUSTOMER
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        category:
+          type: string
+        unit:
+          type: string
+        purchasePrice:
+          type: number
+          format: double
+        maxSalePrice:
+          type: number
+          format: double
+        currentSalePrice:
+          type: number
+          format: double
+        stock:
+          type: integer
+        isAvailable:
+          type: boolean
+        imageUrl:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Marketplace:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        address:
+          type: string
+        isOpenToday:
+          type: boolean
+        openDays:
+          type: string
+        openTime:
+          type: string
+        closeTime:
+          type: string
+        imageUrl:
+          type: string
+        schemaData:
+          type: string
+
+    MarketplaceResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        address:
+          type: string
+        isOpenToday:
+          type: boolean
+        openDays:
+          type: array
+          items:
+            type: string
+        openTime:
+          type: string
+        closeTime:
+          type: string
+        imageUrl:
+          type: string
+        schemaData:
+          type: string
+
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        marketplaceId:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        stallNumber:
+          type: string
+        stallLocation:
+          type: string
+        businessName:
+          type: string
+        name:
+          type: string
+        vendorType:
+          type: string
+        phoneNumber:
+          type: string
+        licenseNumber:
+          type: string
+        stallImageUrl:
+          type: string
+        isActive:
+          type: boolean
+        rating:
+          type: number
+          format: double
+        isApproved:
+          type: boolean
+        trustBadge:
+          type: boolean
+        pinX:
+          type: integer
+        pinY:
+          type: integer
+
+    VendorProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        vendorId:
+          type: integer
+          format: int64
+        productId:
+          type: integer
+          format: int64
+        productName:
+          type: string
+        category:
+          type: string
+        emoji:
+          type: string
+        unit:
+          type: string
+        purchasePrice:
+          type: number
+          format: double
+        maxSalePrice:
+          type: number
+          format: double
+        currentSalePrice:
+          type: number
+          format: double
+        stock:
+          type: integer
+        isAvailable:
+          type: boolean
+        imageUrl:
+          type: string
+
+    Complaint:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        marketplaceId:
+          type: integer
+          format: int64
+        vendorId:
+          type: integer
+          format: int64
+        complaintType:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - investigating
+            - resolved
+            - dismissed
+        severity:
+          type: string
+          enum:
+            - low
+            - medium
+            - high
+        reportedBy:
+          type: string
+        reportedAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+        resolutionNotes:
+          type: string
+        fineAmount:
+          type: number
+          format: double
+
+    MarketplaceChangeRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        vendorId:
+          type: integer
+          format: int64
+        requestedMarketplaceId:
+          type: integer
+          format: int64
+        reason:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+        adminNotes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ZabitaMarketplaceAssignment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        zabitaId:
+          type: integer
+          format: int64
+        marketplaceId:
+          type: integer
+          format: int64
+        assignedAt:
+          type: string
+          format: date-time
+
+    StallLocation:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        marketplaceId:
+          type: integer
+          format: int64
+        vendorId:
+          type: integer
+          format: int64
+        positionX:
+          type: integer
+        positionY:
+          type: integer
+        stallNumber:
+          type: string
+        stallType:
+          type: string
+
