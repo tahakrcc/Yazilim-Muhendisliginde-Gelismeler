@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000")
-@Tag(name = "Authentication", description = "Kullanıcı kimlik doğrulama API'leri")
+@Tag(name = "Authentication", description = "User authentication APIs")
 public class AuthController {
     
     @Autowired
     private AuthService authService;
     
-    @Operation(summary = "Kullanıcı girişi", description = "E-posta ve şifre ile kullanıcı girişi yapar")
+    @Operation(summary = "User Login", description = "Login with email and password")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         try {
@@ -41,7 +41,7 @@ public class AuthController {
         }
     }
 
-    @Operation(summary = "Kullanıcı kaydı", description = "Yeni kullanıcı kaydı oluşturur")
+    @Operation(summary = "User Registration", description = "Create new user account")
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> register(@RequestBody User user) {
         try {
@@ -62,7 +62,7 @@ public class AuthController {
         }
     }
     
-    @Operation(summary = "Token yenileme", description = "Refresh token ile yeni access token alır")
+    @Operation(summary = "Refresh Token", description = "Get new access token using refresh token")
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
         try {

@@ -11,55 +11,40 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-/**
- * Pazar Yönetim Sistemi - Basit Backend Örneği
- * ElifKavurga'nın main.py örneğine benzer şekilde çalışan basit bir backend
- * 
- * Çalıştırmak için: mvn spring-boot:run
- * Swagger UI: http://localhost:8080/swagger-ui.html
- */
 @SpringBootApplication
 @RestController
 @CrossOrigin(origins = "*")
-@Tag(name = "Pazar Yönetim Sistemi", description = "Basit pazar yönetimi API'leri")
+@Tag(name = "Marketplace Management System", description = "Simple marketplace management APIs")
 public class SimpleBackendExample {
 
-    // --- MOCK VERİTABANI ---
-    // Demo kullanıcıları
+    // Mock database
     private static final Map<String, Map<String, Object>> users_db = new ConcurrentHashMap<>();
-    
-    // Pazarlar
     private static final Map<String, Map<String, Object>> marketplaces_db = new ConcurrentHashMap<>();
-    
-    // Ürünler
     private static final Map<String, Map<String, Object>> products_db = new ConcurrentHashMap<>();
     
-    // İlk çalıştırmada demo verileri ekle
+    // Initialize demo data
     static {
-        // Demo kullanıcı
         Map<String, Object> demoUser = new HashMap<>();
         demoUser.put("id", "user_1");
-        demoUser.put("email", "admin@pazar.com");
+        demoUser.put("email", "admin@marketplace.com");
         demoUser.put("password", "123456");
         demoUser.put("name", "Demo Admin");
         demoUser.put("role", "ADMIN");
         users_db.put("user_1", demoUser);
         
-        // Demo pazar
         Map<String, Object> demoMarketplace = new HashMap<>();
         demoMarketplace.put("id", "marketplace_1");
-        demoMarketplace.put("name", "Kadıköy Pazarı");
-        demoMarketplace.put("address", "Kadıköy, İstanbul");
+        demoMarketplace.put("name", "Central Marketplace");
+        demoMarketplace.put("address", "Istanbul, Turkey");
         demoMarketplace.put("latitude", 40.9884);
         demoMarketplace.put("longitude", 29.0232);
         demoMarketplace.put("isOpenToday", true);
         marketplaces_db.put("marketplace_1", demoMarketplace);
         
-        // Demo ürün
         Map<String, Object> demoProduct = new HashMap<>();
         demoProduct.put("id", "product_1");
-        demoProduct.put("name", "Domates");
-        demoProduct.put("category", "Sebze");
+        demoProduct.put("name", "Tomato");
+        demoProduct.put("category", "Vegetable");
         demoProduct.put("unit", "kg");
         demoProduct.put("price", 25.50);
         demoProduct.put("stock", 100);
@@ -70,33 +55,29 @@ public class SimpleBackendExample {
         SpringApplication.run(SimpleBackendExample.class, args);
     }
 
-    // --- ROOT ENDPOINT ---
-    @Operation(summary = "API Durumu", description = "API'nin çalışıp çalışmadığını kontrol eder")
+    @Operation(summary = "API Status", description = "Check if API is running")
     @GetMapping("/")
     public ResponseEntity<Map<String, Object>> root() {
         Map<String, Object> response = new HashMap<>();
-        response.put("mesaj", "Pazar Yönetim Sistemi API çalışıyor!");
+        response.put("message", "Marketplace Management System API is running!");
         response.put("version", "1.0.0");
         response.put("status", "UP");
         return ResponseEntity.ok(response);
     }
-
-    // --- KULLANICI İŞLEMLERİ ---
     
-    @Operation(summary = "Kullanıcı kaydı", description = "Yeni kullanıcı kaydı oluşturur")
+    @Operation(summary = "User Registration", description = "Create new user account")
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> userData) {
         String email = userData.get("email");
         String password = userData.get("password");
         String name = userData.get("name");
         
-        // E-posta kontrolü
         boolean emailExists = users_db.values().stream()
             .anyMatch(u -> u.get("email").equals(email));
         
         if (emailExists) {
             Map<String, Object> error = new HashMap<>();
-            error.put("error", "Bu e-posta zaten kayıtlı.");
+            error.put("error", "Email already registered");
             return ResponseEntity.badRequest().body(error);
         }
         
@@ -111,12 +92,12 @@ public class SimpleBackendExample {
         users_db.put(userId, newUser);
         
         Map<String, Object> response = new HashMap<>();
-        response.put("mesaj", "Kayıt başarılı");
+        response.put("message", "Registration successful");
         response.put("user_id", userId);
         return ResponseEntity.status(201).body(response);
     }
 
-    @Operation(summary = "Kullanıcı girişi", description = "E-posta ve şifre ile giriş yapar")
+    @Operation(summary = "User Login", description = "Login with email and password")
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> credentials) {
         String email = credentials.get("email");
@@ -129,7 +110,7 @@ public class SimpleBackendExample {
         if (userOpt.isPresent()) {
             Map<String, Object> user = userOpt.get();
             Map<String, Object> response = new HashMap<>();
-            response.put("mesaj", "Giriş başarılı");
+            response.put("message", "Login successful");
             response.put("token", "fake-jwt-token-" + user.get("id"));
             response.put("user_id", user.get("id"));
             response.put("name", user.get("name"));
@@ -138,19 +119,17 @@ public class SimpleBackendExample {
         }
         
         Map<String, Object> error = new HashMap<>();
-        error.put("error", "Hatalı e-posta veya şifre");
+        error.put("error", "Invalid email or password");
         return ResponseEntity.status(401).body(error);
     }
-
-    // --- PAZAR İŞLEMLERİ ---
     
-    @Operation(summary = "Tüm pazarları getir", description = "Sistemdeki tüm pazarları listeler")
+    @Operation(summary = "Get All Marketplaces", description = "List all marketplaces in the system")
     @GetMapping("/marketplaces")
     public ResponseEntity<List<Map<String, Object>>> getMarketplaces() {
         return ResponseEntity.ok(new ArrayList<>(marketplaces_db.values()));
     }
 
-    @Operation(summary = "Pazar oluştur", description = "Yeni bir pazar ekler")
+    @Operation(summary = "Create Marketplace", description = "Add new marketplace")
     @PostMapping("/marketplaces")
     public ResponseEntity<Map<String, Object>> createMarketplace(@RequestBody Map<String, Object> marketplaceData) {
         String marketplaceId = "marketplace_" + (marketplaces_db.size() + 1);
@@ -167,7 +146,7 @@ public class SimpleBackendExample {
         return ResponseEntity.status(201).body(newMarketplace);
     }
 
-    @Operation(summary = "Pazar sil", description = "Belirtilen pazarı siler")
+    @Operation(summary = "Delete Marketplace", description = "Delete specified marketplace")
     @DeleteMapping("/marketplaces/{id}")
     public ResponseEntity<Void> deleteMarketplace(@PathVariable String id) {
         if (marketplaces_db.containsKey(id)) {
@@ -177,15 +156,13 @@ public class SimpleBackendExample {
         return ResponseEntity.notFound().build();
     }
 
-    // --- ÜRÜN İŞLEMLERİ ---
-    
-    @Operation(summary = "Tüm ürünleri getir", description = "Sistemdeki tüm ürünleri listeler")
+    @Operation(summary = "Get All Products", description = "List all products in the system")
     @GetMapping("/products")
     public ResponseEntity<List<Map<String, Object>>> getProducts() {
         return ResponseEntity.ok(new ArrayList<>(products_db.values()));
     }
 
-    @Operation(summary = "Ürün oluştur", description = "Yeni bir ürün ekler")
+    @Operation(summary = "Create Product", description = "Add new product")
     @PostMapping("/products")
     public ResponseEntity<Map<String, Object>> createProduct(@RequestBody Map<String, Object> productData) {
         String productId = "product_" + (products_db.size() + 1);
@@ -202,7 +179,7 @@ public class SimpleBackendExample {
         return ResponseEntity.status(201).body(newProduct);
     }
 
-    @Operation(summary = "Ürün güncelle", description = "Mevcut bir ürünü günceller")
+    @Operation(summary = "Update Product", description = "Update existing product")
     @PutMapping("/products/{id}")
     public ResponseEntity<Map<String, Object>> updateProduct(
             @PathVariable String id,
@@ -220,7 +197,7 @@ public class SimpleBackendExample {
         return ResponseEntity.ok(product);
     }
 
-    @Operation(summary = "Ürün sil", description = "Belirtilen ürünü siler")
+    @Operation(summary = "Delete Product", description = "Delete specified product")
     @DeleteMapping("/products/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable String id) {
         if (products_db.containsKey(id)) {
@@ -230,9 +207,7 @@ public class SimpleBackendExample {
         return ResponseEntity.notFound().build();
     }
 
-    // --- ARAMA İŞLEMLERİ ---
-    
-    @Operation(summary = "Ürün ara", description = "Ürün adına göre arama yapar")
+    @Operation(summary = "Search Products", description = "Search products by name")
     @GetMapping("/products/search")
     public ResponseEntity<List<Map<String, Object>>> searchProducts(@RequestParam String name) {
         List<Map<String, Object>> results = products_db.values().stream()
@@ -241,7 +216,7 @@ public class SimpleBackendExample {
         return ResponseEntity.ok(results);
     }
 
-    @Operation(summary = "Kategoriye göre ürünleri getir", description = "Belirtilen kategorideki ürünleri listeler")
+    @Operation(summary = "Get Products by Category", description = "List products in specified category")
     @GetMapping("/products/category/{category}")
     public ResponseEntity<List<Map<String, Object>>> getProductsByCategory(@PathVariable String category) {
         List<Map<String, Object>> results = products_db.values().stream()

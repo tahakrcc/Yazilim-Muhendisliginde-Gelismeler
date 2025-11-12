@@ -24,18 +24,18 @@ public class OpenApiConfig {
         prodServer.setDescription("Production Server");
 
         Contact contact = new Contact();
-        contact.setEmail("info@pazar.com");
-        contact.setName("Pazar Yönetim Sistemi");
+        contact.setEmail("info@marketplace.com");
+        contact.setName("Marketplace Management System");
 
         License license = new License()
                 .name("MIT License")
                 .url("https://opensource.org/licenses/MIT");
 
         Info info = new Info()
-                .title("Pazar Yönetim Sistemi API")
+                .title("Marketplace Management System API")
                 .version("1.0.0")
                 .contact(contact)
-                .description("Modern pazar yönetim sistemi için RESTful API dokümantasyonu")
+                .description("RESTful API documentation for modern marketplace management system")
                 .license(license);
 
         return new OpenAPI()
