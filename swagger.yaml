@@ -1,11 +1,11 @@
 openapi: 3.0.3
 info:
-  title: Pazar Yönetim Sistemi API
-  description: Modern pazar yönetim sistemi için RESTful API dokümantasyonu
+  title: Marketplace Management System API
+  description: RESTful API documentation for modern marketplace management system
   version: 1.0.0
   contact:
-    name: Pazar Yönetim Sistemi
-    email: info@pazar.com
+    name: Marketplace Management System
+    email: info@marketplace.com
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
@@ -13,44 +13,44 @@ info:
 servers:
   - url: http://localhost:8080
     description: Development Server
-  - url: https://api.pazar.com
+  - url: https://api.marketplace.com
     description: Production Server
 
 tags:
   - name: Authentication
-    description: Kullanıcı kimlik doğrulama API'leri
+    description: User authentication APIs
   - name: Users
-    description: Kullanıcı yönetimi API'leri
+    description: User management APIs
   - name: Products
-    description: Ürün yönetimi API'leri
+    description: Product management APIs
   - name: Marketplaces
-    description: Pazar yönetimi API'leri
+    description: Marketplace management APIs
   - name: Vendors
-    description: Satıcı yönetimi API'leri
+    description: Vendor management APIs
   - name: Vendor Products
-    description: Satıcı ürün yönetimi API'leri
+    description: Vendor product management APIs
   - name: Complaints
-    description: Şikayet yönetimi API'leri
+    description: Complaint management APIs
   - name: Marketplace Change Requests
-    description: Pazar değişiklik talepleri API'leri
+    description: Marketplace change request APIs
   - name: Zabita Assignments
-    description: Zabıta atama API'leri
+    description: Zabita assignment APIs
   - name: Stall Locations
-    description: Tezgah konumu API'leri
+    description: Stall location APIs
   - name: Chatbot
-    description: Chatbot API'leri
+    description: Chatbot APIs
   - name: Image Upload
-    description: Resim yükleme API'leri
+    description: Image upload APIs
   - name: Health
-    description: Sistem sağlık kontrolü API'leri
+    description: System health check APIs
 
 paths:
   /api/auth/login:
     post:
       tags:
         - Authentication
-      summary: Kullanıcı girişi
-      description: E-posta ve şifre ile kullanıcı girişi yapar
+      summary: User Login
+      description: Login with email and password
       requestBody:
         required: true
         content:
@@ -77,8 +77,8 @@ paths:
     post:
       tags:
         - Authentication
-      summary: Kullanıcı kaydı
-      description: Yeni kullanıcı kaydı oluşturur
+      summary: User Registration
+      description: Create new user account
       requestBody:
         required: true
         content:
@@ -106,7 +106,7 @@ paths:
       tags:
         - Authentication
       summary: Token yenileme
-      description: Refresh token ile yeni access token alır
+      description: Get new access token using refresh token
       requestBody:
         required: true
         content:
