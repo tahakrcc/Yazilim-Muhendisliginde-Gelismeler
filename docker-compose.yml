@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  pazar-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pazar-backend-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    restart: unless-stopped
+    networks:
+      - pazar-network
+
+networks:
+  pazar-network:
+    driver: bridge
+
