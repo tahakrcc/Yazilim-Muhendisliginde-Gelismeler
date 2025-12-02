@@ -1,0 +1,11 @@
+com\pazar\backend\controller\MarketController.class
+com\pazar\backend\config\SecurityConfig.class
+com\pazar\backend\entity\Product.class
+com\pazar\backend\controller\AuthController.class
+com\pazar\backend\service\ProductService.class
+com\pazar\backend\controller\HealthController.class
+com\pazar\backend\entity\Market.class
+com\pazar\backend\config\OpenApiConfig.class
+com\pazar\backend\controller\ProductController.class
+com\pazar\backend\service\MarketService.class
+com\pazar\backend\PazarBackendApplication.class
