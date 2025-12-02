@@ -8,13 +8,11 @@ import './MapView.css'
 interface MapViewProps {
   products: Product[]
   selectedProduct: Product | null
-  marketId: string
 }
 
 export default function MapView({
   products,
   selectedProduct,
-  marketId,
 }: MapViewProps) {
   const [activeTab, setActiveTab] = useState<'2d' | '3d'>('2d')
 
