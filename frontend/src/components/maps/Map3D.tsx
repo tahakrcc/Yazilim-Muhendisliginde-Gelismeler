@@ -1,8 +1,8 @@
 import { Suspense, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera, Text } from '@react-three/drei'
-import * as THREE from 'three'
-import { Product } from '../App'
+import { Product } from '../../types'
+import { COLORS } from '../../constants'
 import './Map3D.css'
 
 interface Map3DProps {
@@ -33,7 +33,7 @@ function Stall3D({
       >
         <boxGeometry args={[2, 2, 2]} />
         <meshStandardMaterial
-          color={isSelected ? '#FF9800' : isCheapest ? '#4CAF50' : '#FF9800'}
+          color={isSelected ? COLORS.WARNING : isCheapest ? COLORS.SUCCESS : COLORS.WARNING}
           metalness={0.3}
           roughness={0.4}
         />
@@ -63,13 +63,14 @@ function Stall3D({
 function Entrance3D() {
   return (
     <group position={[-8, 0, -8]}>
-      <Box args={[1, 1, 1]} position={[0, 0.5, 0]}>
-        <meshStandardMaterial color="#2196F3" />
-      </Box>
+      <mesh position={[0, 0.5, 0]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color={COLORS.ENTRANCE} />
+      </mesh>
       <Text
         position={[0, 1.5, 0]}
         fontSize={0.3}
-        color="#2196F3"
+        color={COLORS.ENTRANCE}
         anchorX="center"
         anchorY="middle"
       >
@@ -203,15 +204,15 @@ export default function Map3D({ products, selectedProduct }: Map3DProps) {
       </div>
       <div className="3d-legend">
         <div className="legend-item">
-          <div className="legend-color" style={{ background: '#4CAF50' }}></div>
+          <div className="legend-color" style={{ background: COLORS.SUCCESS }}></div>
           <span>En Ucuz</span>
         </div>
         <div className="legend-item">
-          <div className="legend-color" style={{ background: '#FF9800' }}></div>
+          <div className="legend-color" style={{ background: COLORS.WARNING }}></div>
           <span>Diğer Tezgahlar</span>
         </div>
         <div className="legend-item">
-          <div className="legend-color" style={{ background: '#2196F3' }}></div>
+          <div className="legend-color" style={{ background: COLORS.ENTRANCE }}></div>
           <span>Giriş</span>
         </div>
       </div>

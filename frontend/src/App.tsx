@@ -1,32 +1,11 @@
-import { useState } from 'react'
-import Header from './components/Header'
-import SearchPanel from './components/SearchPanel'
-import MapView from './components/MapView'
-import ProductResults from './components/ProductResults'
+import { useState, useEffect } from 'react'
+import Header from './components/layout/Header'
+import SearchPanel from './components/search/SearchPanel'
+import MapView from './components/maps/MapView'
+import ProductResults from './components/products/ProductResults'
+import { Product, Market } from './types'
+import { marketService } from './services/api'
 import './App.css'
-
-export interface Product {
-  id: string
-  name: string
-  category: string
-  unit: string
-  freshness?: string
-  minPrice?: number
-  stallNumber?: string
-  vendorName?: string
-  location?: { x: number; y: number; z: number }
-  allPrices?: Array<{ price: number; stallNumber: string; vendorName: string }>
-}
-
-export interface Market {
-  id: string
-  name: string
-  address: string
-  latitude: number
-  longitude: number
-  isOpenToday: boolean
-  openingHours: string
-}
 
 function App() {
   const [products, setProducts] = useState<Product[]>([])
@@ -34,6 +13,18 @@ function App() {
   const [selectedMarket, setSelectedMarket] = useState<string>('market_1')
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([])
   const [markets, setMarkets] = useState<Market[]>([])
+
+  useEffect(() => {
+    const loadMarkets = async () => {
+      try {
+        const marketsData = await marketService.getAll()
+        setMarkets(marketsData)
+      } catch (error) {
+        console.error('Pazarlar yüklenemedi:', error)
+      }
+    }
+    loadMarkets()
+  }, [])
 
   return (
     <div className="app">

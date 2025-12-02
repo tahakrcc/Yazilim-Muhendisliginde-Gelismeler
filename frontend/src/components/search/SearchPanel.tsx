@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-import { Product, Market } from '../App'
+import { Product, Market } from '../../types'
+import { productService, marketService } from '../../services/api'
+import { sortByPrice } from '../../utils'
 import './SearchPanel.css'
 
 interface SearchPanelProps {
@@ -10,8 +11,6 @@ interface SearchPanelProps {
   markets: Market[]
   onMarketsLoaded: (markets: Market[]) => void
 }
-
-const API_BASE_URL = 'http://localhost:8080/api'
 
 export default function SearchPanel({
   onSearch,
@@ -29,8 +28,8 @@ export default function SearchPanel({
 
   const loadMarkets = async () => {
     try {
-      const response = await axios.get<Market[]>(`${API_BASE_URL}/markets`)
-      onMarketsLoaded(response.data)
+      const marketsData = await marketService.getAll()
+      onMarketsLoaded(marketsData)
     } catch (error) {
       console.error('Pazarlar yüklenemedi:', error)
     }
@@ -44,14 +43,8 @@ export default function SearchPanel({
 
     try {
       const marketId = selectedMarket || 'market_1'
-      const response = await axios.get<{
-        results: Product[]
-        aiSuggestions: string[]
-      }>(`${API_BASE_URL}/products/search`, {
-        params: { query: searchQuery, marketId },
-      })
-
-      onSearch(response.data.results, response.data.aiSuggestions || [])
+      const response = await productService.search(searchQuery, marketId)
+      onSearch(response.results, response.aiSuggestions || [])
     } catch (error) {
       console.error('Arama hatası:', error)
       alert('Arama sırasında bir hata oluştu')
@@ -59,14 +52,9 @@ export default function SearchPanel({
   }
 
   const handleFilterCheapest = async () => {
-    // En ucuz ürünleri getir
     try {
-      const response = await axios.get<Product[]>(`${API_BASE_URL}/products`)
-      const sorted = response.data.sort((a, b) => {
-        const priceA = a.minPrice || Infinity
-        const priceB = b.minPrice || Infinity
-        return priceA - priceB
-      })
+      const products = await productService.getAll()
+      const sorted = sortByPrice(products)
       onSearch(sorted, [])
     } catch (error) {
       console.error('Filtreleme hatası:', error)

@@ -1,4 +1,5 @@
-import { Product } from '../App'
+import { Product } from '../../types'
+import { formatPrice } from '../../utils'
 import './ProductResults.css'
 
 interface ProductResultsProps {
@@ -38,7 +39,7 @@ export default function ProductResults({
               <span className="product-category">{product.category}</span>
             </div>
             <div className="product-price">
-              💰 {product.minPrice || 'N/A'} ₺
+              💰 {formatPrice(product.minPrice)}
             </div>
             <div className="product-info">
               <span>📍 Tezgah: {product.stallNumber || '-'}</span>
@@ -52,7 +53,7 @@ export default function ProductResults({
                     <span>
                       {price.stallNumber} - {price.vendorName}
                     </span>
-                    <span>{price.price} ₺</span>
+                    <span>{formatPrice(price.price)}</span>
                   </div>
                 ))}
               </div>

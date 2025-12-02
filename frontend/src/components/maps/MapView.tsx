@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Product } from '../App'
+import { Product } from '../../types'
 import Map2D from './Map2D'
 import Map3D from './Map3D'
+import { formatPrice } from '../../utils'
 import './MapView.css'
 
 interface MapViewProps {
@@ -53,7 +54,7 @@ export default function MapView({
               <strong>Satıcı:</strong> {selectedProduct.vendorName || '-'}
             </div>
             <div className="detail-item">
-              <strong>Fiyat:</strong> {selectedProduct.minPrice || 'N/A'} ₺
+              <strong>Fiyat:</strong> {formatPrice(selectedProduct.minPrice)}
             </div>
             {selectedProduct.location && (
               <div className="detail-item">

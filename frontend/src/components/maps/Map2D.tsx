@@ -1,15 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { Stage, Layer, Rect, Circle, Text, Group } from 'react-konva'
-import { Product } from '../App'
+import { Product } from '../../types'
+import { MAP_CONFIG, COLORS } from '../../constants'
 import './Map2D.css'
 
 interface Map2DProps {
   products: Product[]
   selectedProduct: Product | null
 }
-
-const MAP_WIDTH = 600
-const MAP_HEIGHT = 450
 
 export default function Map2D({ products, selectedProduct }: Map2DProps) {
   const stageRef = useRef<any>(null)
@@ -27,36 +25,35 @@ export default function Map2D({ products, selectedProduct }: Map2DProps) {
     }))
 
   const handleStallClick = (product: Product) => {
-    // Ürün seçildiğinde parent component'e bildir
     console.log('Stall clicked:', product)
   }
 
   return (
     <div className="map-2d-container">
       <Stage
-        width={MAP_WIDTH}
-        height={MAP_HEIGHT}
+        width={MAP_CONFIG.WIDTH}
+        height={MAP_CONFIG.HEIGHT}
         ref={stageRef}
         className="konva-stage"
       >
         <Layer>
           {/* Grid çizgileri */}
-          {Array.from({ length: MAP_WIDTH / 40 + 1 }).map((_, i) => (
+          {Array.from({ length: MAP_CONFIG.WIDTH / MAP_CONFIG.GRID_SIZE + 1 }).map((_, i) => (
             <Rect
               key={`v-${i}`}
-              x={i * 40}
+              x={i * MAP_CONFIG.GRID_SIZE}
               y={0}
               width={1}
-              height={MAP_HEIGHT}
+              height={MAP_CONFIG.HEIGHT}
               fill="#e0e0e0"
             />
           ))}
-          {Array.from({ length: MAP_HEIGHT / 40 + 1 }).map((_, i) => (
+          {Array.from({ length: MAP_CONFIG.HEIGHT / MAP_CONFIG.GRID_SIZE + 1 }).map((_, i) => (
             <Rect
               key={`h-${i}`}
               x={0}
-              y={i * 40}
-              width={MAP_WIDTH}
+              y={i * MAP_CONFIG.GRID_SIZE}
+              width={MAP_CONFIG.WIDTH}
               height={1}
               fill="#e0e0e0"
             />
@@ -64,7 +61,7 @@ export default function Map2D({ products, selectedProduct }: Map2DProps) {
 
           {/* Giriş noktası */}
           <Group x={20} y={20}>
-            <Circle radius={12} fill="#2196F3" />
+            <Circle radius={12} fill={COLORS.ENTRANCE} />
             <Text
               text="Giriş"
               fontSize={12}
@@ -95,7 +92,7 @@ export default function Map2D({ products, selectedProduct }: Map2DProps) {
                   height={40}
                   x={-20}
                   y={-20}
-                  fill={isSelected ? '#FF9800' : isCheapest ? '#4CAF50' : '#FF9800'}
+                  fill={isSelected ? COLORS.WARNING : isCheapest ? COLORS.SUCCESS : COLORS.WARNING}
                   stroke={isSelected ? '#F57C00' : '#E65100'}
                   strokeWidth={2}
                   cornerRadius={4}
@@ -126,15 +123,15 @@ export default function Map2D({ products, selectedProduct }: Map2DProps) {
       </Stage>
       <div className="map-legend">
         <div className="legend-item">
-          <div className="legend-color" style={{ background: '#4CAF50' }}></div>
+          <div className="legend-color" style={{ background: COLORS.SUCCESS }}></div>
           <span>En Ucuz</span>
         </div>
         <div className="legend-item">
-          <div className="legend-color" style={{ background: '#FF9800' }}></div>
+          <div className="legend-color" style={{ background: COLORS.WARNING }}></div>
           <span>Diğer Tezgahlar</span>
         </div>
         <div className="legend-item">
-          <div className="legend-color" style={{ background: '#2196F3' }}></div>
+          <div className="legend-color" style={{ background: COLORS.ENTRANCE }}></div>
           <span>Giriş</span>
         </div>
       </div>
