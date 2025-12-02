@@ -1,24 +1,19 @@
-package com.pazar.backend.controller;
+package com.pazar.backend.service;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-
+import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@RestController
-@RequestMapping("/api/markets")
-@CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000"})
-@Tag(name = "Markets", description = "Marketplace management and location APIs")
-public class MarketController {
+@Service
+public class MarketService {
 
-    // Mock database
     private static final Map<String, Map<String, Object>> markets_db = new ConcurrentHashMap<>();
 
     static {
-        // Demo pazarlar
+        initializeDemoData();
+    }
+
+    private static void initializeDemoData() {
         Map<String, Object> market1 = new HashMap<>();
         market1.put("id", "market_1");
         market1.put("name", "Merkez Pazar");
@@ -64,49 +59,31 @@ public class MarketController {
         markets_db.put("market_2", market2);
     }
 
-    @Operation(summary = "Get All Markets", description = "List all marketplaces")
-    @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> getAllMarkets() {
-        return ResponseEntity.ok(new ArrayList<>(markets_db.values()));
+    public List<Map<String, Object>> getAllMarkets() {
+        return new ArrayList<>(markets_db.values());
     }
 
-    @Operation(summary = "Get Market by ID", description = "Get detailed information about a specific market")
-    @GetMapping("/{marketId}")
-    public ResponseEntity<Map<String, Object>> getMarket(@PathVariable String marketId) {
-        if (!markets_db.containsKey(marketId)) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(markets_db.get(marketId));
+    public Map<String, Object> getMarketById(String marketId) {
+        return markets_db.get(marketId);
     }
 
-    @Operation(summary = "Get Market Map", description = "Get 2D and 3D map information for a market")
-    @GetMapping("/{marketId}/map")
-    public ResponseEntity<Map<String, Object>> getMarketMap(@PathVariable String marketId) {
-        if (!markets_db.containsKey(marketId)) {
-            return ResponseEntity.notFound().build();
-        }
-
+    public Map<String, Object> getMarketMap(String marketId) {
         Map<String, Object> market = markets_db.get(marketId);
+        if (market == null) return null;
+
         Map<String, Object> response = new HashMap<>();
         response.put("marketId", marketId);
         response.put("marketName", market.get("name"));
         response.put("map2D", market.get("map2D"));
         response.put("map3D", market.get("map3D"));
         
-        return ResponseEntity.ok(response);
+        return response;
     }
 
-    @Operation(summary = "Get Route to Stall", description = "Get navigation route to a specific stall in the market")
-    @GetMapping("/{marketId}/route/{stallNumber}")
-    public ResponseEntity<Map<String, Object>> getRoute(
-            @PathVariable String marketId,
-            @PathVariable String stallNumber) {
-        
-        if (!markets_db.containsKey(marketId)) {
-            return ResponseEntity.notFound().build();
-        }
+    public Map<String, Object> getRoute(String marketId, String stallNumber) {
+        Map<String, Object> market = markets_db.get(marketId);
+        if (market == null) return null;
 
-        Map<String, Object> market = (Map<String, Object>) markets_db.get(marketId);
         Map<String, Object> map2D = (Map<String, Object>) market.get("map2D");
         List<Map<String, Object>> stalls = (List<Map<String, Object>>) map2D.get("stalls");
 
@@ -114,9 +91,7 @@ public class MarketController {
             .filter(s -> s.get("id").equals(stallNumber))
             .findFirst();
 
-        if (stallOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        if (stallOpt.isEmpty()) return null;
 
         Map<String, Object> stall = stallOpt.get();
         Map<String, Object> response = new HashMap<>();
@@ -130,7 +105,7 @@ public class MarketController {
                      stall.get("x") + ", Y=" + stall.get("y"));
         response.put("estimatedTime", "2-3 dakika");
 
-        return ResponseEntity.ok(response);
+        return response;
     }
 }
 

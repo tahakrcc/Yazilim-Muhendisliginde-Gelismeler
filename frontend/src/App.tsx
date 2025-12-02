@@ -11,7 +11,7 @@ function App() {
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [selectedMarket, setSelectedMarket] = useState<string>('market_1')
-  const [aiSuggestions, setAiSuggestions] = useState<string[]>([])
+  const [, setAiSuggestions] = useState<string[]>([])
   const [markets, setMarkets] = useState<Market[]>([])
 
   useEffect(() => {
