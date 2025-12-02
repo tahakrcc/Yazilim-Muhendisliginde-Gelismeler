@@ -3,60 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pazar Yönetim Sistemi</title>
+    <title>Pazar Yönetim Sistemi - Akıllı Ürün Arama</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>🛒 Pazar Yönetim Sistemi</h1>
-            <p>Backend API ile entegre frontend uygulaması</p>
+            <p>Yapay Zeka Destekli Ürün Arama ve Konum Yönlendirme</p>
         </header>
 
-        <div class="content">
-            <div class="card">
-                <h2>Giriş Yap</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="email">E-posta:</label>
-                        <input type="email" id="email" name="email" required placeholder="ornek@email.com">
+        <div class="main-content">
+            <!-- Sol Panel: Arama ve Filtreleme -->
+            <div class="left-panel">
+                <div class="search-section">
+                    <h2>🔍 Ürün Ara</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Ürün adı girin (örn: Domates, Elma...)">
+                        <button id="searchBtn">Ara</button>
                     </div>
-                    <div class="form-group">
-                        <label for="password">Şifre:</label>
-                        <input type="password" id="password" name="password" required placeholder="••••••••">
+                    <div class="ai-suggestions" id="aiSuggestions"></div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Filtrele</h3>
+                    <select id="marketSelect">
+                        <option value="">Tüm Pazarlar</option>
+                        <option value="market_1">Merkez Pazar</option>
+                        <option value="market_2">Şişli Pazarı</option>
+                    </select>
+                    <select id="categorySelect">
+                        <option value="">Tüm Kategoriler</option>
+                        <option value="Sebze">Sebze</option>
+                        <option value="Meyve">Meyve</option>
+                    </select>
+                    <div class="filter-buttons">
+                        <button id="cheapestBtn" class="filter-btn">💰 En Ucuz</button>
+                        <button id="freshestBtn" class="filter-btn">🌿 En Taze</button>
                     </div>
-                    <button type="submit">Giriş Yap</button>
-                </form>
+                </div>
+
+                <div class="results-section">
+                    <h3>Sonuçlar</h3>
+                    <div id="resultsContainer"></div>
+                </div>
             </div>
 
-            <div class="card">
-                <h2>Kayıt Ol</h2>
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label for="regEmail">E-posta:</label>
-                        <input type="email" id="regEmail" name="email" required placeholder="ornek@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="regPassword">Şifre:</label>
-                        <input type="password" id="regPassword" name="password" required placeholder="••••••••">
-                    </div>
-                    <div class="form-group">
-                        <label for="regName">Ad Soyad:</label>
-                        <input type="text" id="regName" name="name" required placeholder="Ad Soyad">
-                    </div>
-                    <button type="submit">Kayıt Ol</button>
-                </form>
-            </div>
+            <!-- Sağ Panel: Harita ve Detaylar -->
+            <div class="right-panel">
+                <div class="map-tabs">
+                    <button class="tab-btn active" data-tab="2d">2D Harita</button>
+                    <button class="tab-btn" data-tab="3d">3D Görünüm</button>
+                </div>
 
-            <div class="card">
-                <h2>API Durumu</h2>
-                <button id="healthCheckBtn">Backend Durumunu Kontrol Et</button>
-                <div id="healthStatus" class="status"></div>
-            </div>
+                <div class="map-container">
+                    <div id="map2D" class="map-view active">
+                        <canvas id="mapCanvas" width="400" height="300"></canvas>
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #4CAF50;"></span>
+                                <span>En Ucuz</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background: #FF9800;"></span>
+                                <span>Diğer Tezgahlar</span>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="card">
-                <h2>API Yanıtları</h2>
-                <pre id="responseArea"></pre>
+                    <div id="map3D" class="map-view">
+                        <div class="3d-container">
+                            <div class="floor-selector">
+                                <button class="floor-btn" data-floor="0">Zemin Kat</button>
+                                <button class="floor-btn" data-floor="1">1. Kat</button>
+                            </div>
+                            <div id="3dView" class="3d-view">
+                                <div class="stall-3d" style="left: 30%; top: 25%;" data-stall="A-12">
+                                    <div class="stall-label">A-12</div>
+                                </div>
+                                <div class="stall-3d" style="left: 60%; top: 50%;" data-stall="B-05">
+                                    <div class="stall-label">B-05</div>
+                                </div>
+                                <div class="stall-3d" style="left: 20%; top: 20%;" data-stall="A-08">
+                                    <div class="stall-label">A-08</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="details-section">
+                    <h3>Tezgah Detayları</h3>
+                    <div id="stallDetails"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -64,4 +103,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-
