@@ -1,27 +1,22 @@
-# Multi-stage build kullanarak daha küçük imaj oluşturma
-FROM maven:3.8.6-openjdk-17-slim AS build
+# ---------- BUILD STAGE ----------
+    FROM maven:3.9.6-eclipse-temurin-17 AS build
 
-# Çalışma dizini
-WORKDIR /app
-
-# pom.xml ve source dosyalarını kopyala
-COPY pom.xml .
-COPY src ./src
-
-# Projeyi derle
-RUN mvn clean package -DskipTests
-
-# Runtime imajı
-FROM openjdk:17-jdk-slim
-
-WORKDIR /app
-
-# Build aşamasından JAR dosyasını kopyala
-COPY --from=build /app/target/*.jar app.jar
-
-# Port
-EXPOSE 8080
-
-# Uygulamayı çalıştır
-ENTRYPOINT ["java", "-jar", "app.jar"]
-
+    WORKDIR /app
+    
+    COPY pom.xml .
+    COPY src ./src
+    
+    RUN mvn clean package -DskipTests
+    
+    
+    # ---------- RUNTIME STAGE ----------
+    FROM eclipse-temurin:17-jdk
+    
+    WORKDIR /app
+    
+    COPY --from=build /app/target/*.jar app.jar
+    
+    EXPOSE 8080
+    
+    ENTRYPOINT ["java", "-jar", "app.jar"]
+    
