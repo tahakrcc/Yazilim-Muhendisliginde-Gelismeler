@@ -17,7 +17,7 @@ echo ========================================
 echo Servisler baslatildi!
 echo.
 echo Backend: http://localhost:8080
-echo Frontend: http://localhost:3000
+echo Frontend: http://localhost:5173
 echo Swagger: http://localhost:8080/swagger-ui.html
 echo.
 echo Servisleri durdurmak icin pencereyi kapatin.

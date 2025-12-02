@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000"})
+@CrossOrigin(origins = {"http://localhost:5173", "http://frontend:3000"})
 @Tag(name = "Products", description = "Product management and search APIs")
 public class ProductController {
 

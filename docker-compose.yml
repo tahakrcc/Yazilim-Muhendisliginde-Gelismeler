@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
     container_name: pazar-frontend-app
     ports:
-      - "3000:3000"
+      - "5173:3000"
     depends_on:
       - pazar-backend
     restart: unless-stopped

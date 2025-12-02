@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/markets")
-@CrossOrigin(origins = {"http://localhost:3000", "http://frontend:3000"})
+@CrossOrigin(origins = {"http://localhost:5173", "http://frontend:3000"})
 @Tag(name = "Markets", description = "Marketplace management and location APIs")
 public class MarketController {
 
