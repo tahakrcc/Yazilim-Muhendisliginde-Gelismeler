@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pazar Yönetim Sistemi</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛒 Pazar Yönetim Sistemi</h1>
+            <p>Backend API ile entegre frontend uygulaması</p>
+        </header>
+
+        <div class="content">
+            <div class="card">
+                <h2>Giriş Yap</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">E-posta:</label>
+                        <input type="email" id="email" name="email" required placeholder="ornek@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Şifre:</label>
+                        <input type="password" id="password" name="password" required placeholder="••••••••">
+                    </div>
+                    <button type="submit">Giriş Yap</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Kayıt Ol</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regEmail">E-posta:</label>
+                        <input type="email" id="regEmail" name="email" required placeholder="ornek@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Şifre:</label>
+                        <input type="password" id="regPassword" name="password" required placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label for="regName">Ad Soyad:</label>
+                        <input type="text" id="regName" name="name" required placeholder="Ad Soyad">
+                    </div>
+                    <button type="submit">Kayıt Ol</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>API Durumu</h2>
+                <button id="healthCheckBtn">Backend Durumunu Kontrol Et</button>
+                <div id="healthStatus" class="status"></div>
+            </div>
+
+            <div class="card">
+                <h2>API Yanıtları</h2>
+                <pre id="responseArea"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
