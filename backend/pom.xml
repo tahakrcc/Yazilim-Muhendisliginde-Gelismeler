@@ -15,7 +15,6 @@
     <groupId>com.pazar</groupId>
     <artifactId>pazar-backend</artifactId>
     <version>1.0.0</version>
-    <name>pazar-backend</name>
     <description>Pazar Yönetim Sistemi Backend</description>
 
     <properties>
