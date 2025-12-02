@@ -51,7 +51,6 @@ function App() {
           <MapView
             products={products}
             selectedProduct={selectedProduct}
-            marketId={selectedMarket}
           />
         </div>
       </div>
