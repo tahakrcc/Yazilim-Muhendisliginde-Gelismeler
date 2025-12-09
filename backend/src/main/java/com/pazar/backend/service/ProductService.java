@@ -127,5 +127,47 @@ public class ProductService {
         
         return suggestions;
     }
+
+    // Admin CRUD operations
+    public Map<String, Object> createProduct(Map<String, Object> productData) {
+        String id = "prod_" + System.currentTimeMillis();
+        Map<String, Object> product = new HashMap<>(productData);
+        product.put("id", id);
+        products_db.put(id, product);
+        return product;
+    }
+
+    public Map<String, Object> updateProduct(String productId, Map<String, Object> productData) {
+        Map<String, Object> existing = products_db.get(productId);
+        if (existing == null) return null;
+        
+        Map<String, Object> updated = new HashMap<>(existing);
+        updated.putAll(productData);
+        updated.put("id", productId); // ID değiştirilemez
+        products_db.put(productId, updated);
+        return updated;
+    }
+
+    public boolean deleteProduct(String productId) {
+        return products_db.remove(productId) != null;
+    }
+
+    public Map<String, Object> addProductToMarket(String marketId, Map<String, Object> marketProductData) {
+        List<Map<String, Object>> marketProducts = marketProducts_db.getOrDefault(marketId, new ArrayList<>());
+        marketProducts.add(new HashMap<>(marketProductData));
+        marketProducts_db.put(marketId, marketProducts);
+        return marketProductData;
+    }
+
+    public boolean removeProductFromMarket(String marketId, String productId, String stallNumber) {
+        List<Map<String, Object>> marketProducts = marketProducts_db.get(marketId);
+        if (marketProducts == null) return false;
+        
+        boolean removed = marketProducts.removeIf(mp -> 
+            mp.get("productId").equals(productId) && 
+            mp.get("stallNumber").equals(stallNumber)
+        );
+        return removed;
+    }
 }
 

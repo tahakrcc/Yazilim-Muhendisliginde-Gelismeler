@@ -39,3 +39,13 @@ yarn-error.log*
 dist/
 build/
 
+# Gradle cache (Windows path length issue)
+.gradle/
+.gradlew
+.gradlew.bat
+
+# Android/React Native cache
+.android/
+.expo/
+.cache/
+

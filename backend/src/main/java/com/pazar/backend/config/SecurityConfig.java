@@ -1,11 +1,15 @@
 package com.pazar.backend.config;
 
+import com.pazar.backend.filter.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -15,7 +19,11 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
+
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -24,10 +32,20 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/health", "/api/products/**", "/api/markets/**", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
+                // Public endpoints
+                .requestMatchers("/api/health", "/swagger-ui/**", "/v3/api-docs/**", "/h2-console/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
-                .anyRequest().permitAll()
+                // Public read-only endpoints (herkes görebilir)
+                .requestMatchers("/api/products/search", "/api/products", "/api/products/{productId}/prices", 
+                               "/api/products/category/**", "/api/markets", "/api/markets/{marketId}", 
+                               "/api/markets/{marketId}/map", "/api/markets/{marketId}/route/**").permitAll()
+                // User endpoints - authenticated users (USER veya ADMIN)
+                .requestMatchers("/api/products/{productId}/cheapest").hasAnyRole("USER", "ADMIN")
+                // Admin endpoints - only ADMIN role
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
             )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
         return http.build();
     }

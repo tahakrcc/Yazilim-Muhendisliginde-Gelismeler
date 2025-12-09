@@ -112,7 +112,8 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByCategory(category));
     }
 
-    @Operation(summary = "Find Cheapest Product", description = "Find the cheapest vendor for a product")
+    @Operation(summary = "Find Cheapest Product", description = "Find the cheapest vendor for a product - Requires authentication")
+    @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{productId}/cheapest")
     public ResponseEntity<Map<String, Object>> findCheapest(
             @PathVariable String productId,

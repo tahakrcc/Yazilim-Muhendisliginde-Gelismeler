@@ -107,5 +107,78 @@ public class MarketService {
 
         return response;
     }
+
+    // Admin CRUD operations
+    public Map<String, Object> createMarket(Map<String, Object> marketData) {
+        String id = "market_" + System.currentTimeMillis();
+        Map<String, Object> market = new HashMap<>(marketData);
+        market.put("id", id);
+        
+        // Default map structure if not provided
+        if (!market.containsKey("map2D")) {
+            market.put("map2D", Map.of(
+                "width", 400,
+                "height", 300,
+                "stalls", new ArrayList<>()
+            ));
+        }
+        if (!market.containsKey("map3D")) {
+            market.put("map3D", Map.of(
+                "enabled", true,
+                "floorCount", 1,
+                "currentFloor", 0
+            ));
+        }
+        
+        markets_db.put(id, market);
+        return market;
+    }
+
+    public Map<String, Object> updateMarket(String marketId, Map<String, Object> marketData) {
+        Map<String, Object> existing = markets_db.get(marketId);
+        if (existing == null) return null;
+        
+        Map<String, Object> updated = new HashMap<>(existing);
+        updated.putAll(marketData);
+        updated.put("id", marketId); // ID değiştirilemez
+        markets_db.put(marketId, updated);
+        return updated;
+    }
+
+    public boolean deleteMarket(String marketId) {
+        return markets_db.remove(marketId) != null;
+    }
+
+    public Map<String, Object> addStallToMarket(String marketId, Map<String, Object> stallData) {
+        Map<String, Object> market = markets_db.get(marketId);
+        if (market == null) return null;
+        
+        Map<String, Object> map2D = (Map<String, Object>) market.get("map2D");
+        List<Map<String, Object>> stalls = new ArrayList<>((List<Map<String, Object>>) map2D.get("stalls"));
+        stalls.add(new HashMap<>(stallData));
+        
+        Map<String, Object> updatedMap2D = new HashMap<>(map2D);
+        updatedMap2D.put("stalls", stalls);
+        market.put("map2D", updatedMap2D);
+        
+        return stallData;
+    }
+
+    public boolean removeStallFromMarket(String marketId, String stallId) {
+        Map<String, Object> market = markets_db.get(marketId);
+        if (market == null) return false;
+        
+        Map<String, Object> map2D = (Map<String, Object>) market.get("map2D");
+        List<Map<String, Object>> stalls = new ArrayList<>((List<Map<String, Object>>) map2D.get("stalls"));
+        
+        boolean removed = stalls.removeIf(s -> s.get("id").equals(stallId));
+        if (removed) {
+            Map<String, Object> updatedMap2D = new HashMap<>(map2D);
+            updatedMap2D.put("stalls", stalls);
+            market.put("map2D", updatedMap2D);
+        }
+        
+        return removed;
+    }
 }
 
