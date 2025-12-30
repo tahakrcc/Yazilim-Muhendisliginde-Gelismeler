@@ -1,8 +1,12 @@
-package com.pazar.backend.entity;
+package com.pazar.backend.entity.mongo;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Map;
 
+@Document(collection = "markets")
 public class Market {
+    @Id
     private String id;
     private String name;
     private String address;
@@ -52,4 +56,3 @@ public class Market {
     public Map<String, Object> getMap3D() { return map3D; }
     public void setMap3D(Map<String, Object> map3D) { this.map3D = map3D; }
 }
-

@@ -4,10 +4,14 @@ import { OrbitControls, PerspectiveCamera, Text } from '@react-three/drei'
 import { Product } from '../../types'
 import { COLORS } from '../../constants'
 import './Map3D.css'
+import * as THREE from 'three'
 
 interface Map3DProps {
   products: Product[]
   selectedProduct: Product | null
+  onMapClick?: (x: number, y: number, z: number) => void
+  isSellerMode?: boolean
+  marketData?: any
 }
 
 function Stall3D({
@@ -16,24 +20,31 @@ function Stall3D({
   productName,
   isSelected,
   isCheapest,
+  isSellerMode,
+  onClick
 }: {
   position: [number, number, number]
   stallNumber: string
   productName: string
   isSelected: boolean
   isCheapest: boolean
+  isSellerMode?: boolean
+  onClick?: () => void
 }) {
   return (
     <group position={position}>
       <mesh
         position={[0, 1, 0]}
-        onClick={() => console.log('Stall clicked:', stallNumber)}
+        onClick={(e) => {
+          e.stopPropagation()
+          if (onClick) onClick()
+        }}
         castShadow
         receiveShadow
       >
         <boxGeometry args={[2, 2, 2]} />
         <meshStandardMaterial
-          color={isSelected ? COLORS.WARNING : isCheapest ? COLORS.SUCCESS : COLORS.WARNING}
+          color={isSellerMode ? '#9E9E9E' : (isSelected ? COLORS.WARNING : isCheapest ? COLORS.SUCCESS : COLORS.WARNING)}
           metalness={0.3}
           roughness={0.4}
         />
@@ -80,17 +91,54 @@ function Entrance3D() {
   )
 }
 
-export default function Map3D({ products, selectedProduct }: Map3DProps) {
-  const [currentFloor, setCurrentFloor] = useState(0)
+function GridPlane({ onPlaneClick, isSellerMode }: { onPlaneClick: (point: THREE.Vector3) => void, isSellerMode?: boolean }) {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  // Removed unused useThree
 
-  const stalls = products
+  return (
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[0, -0.1, 0]}
+      receiveShadow
+      onClick={(e) => {
+        if (!isSellerMode) return
+        // e.point is the Vector3 of intersection
+        onPlaneClick(e.point)
+      }}
+    >
+      <planeGeometry args={[20, 20]} />
+      <meshStandardMaterial color="#f5f5f5" />
+    </mesh>
+  )
+}
+
+export default function Map3D({ products, selectedProduct, onMapClick, isSellerMode, marketData }: Map3DProps) {
+  const [currentFloor, setCurrentFloor] = useState(0)
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  // Removed unused ref
+
+  // Use marketData stalls if available, else derive from products
+  const stalls = marketData?.map3D?.stalls || marketData?.map2D?.stalls || products
     .filter((p) => p.location)
     .map((product) => ({
       ...product,
       x: (product.location!.x / 100) * 10 - 5,
-      y: currentFloor * 3,
+      y: currentFloor * 3, // simplified mapping
       z: (product.location!.y / 100) * 10 - 5,
     }))
+
+  const handlePlaneClick = (point: THREE.Vector3) => {
+    if (!onMapClick) return
+
+    const x = Math.round(point.x)
+    const z = Math.round(point.z)
+
+    const isOccupied = stalls.some((s: any) => Math.abs(s.x - x) < 1 && Math.abs(s.z - z) < 1)
+
+    if (!isOccupied) {
+      onMapClick(x, 0, z)
+    }
+  }
 
   return (
     <div className="map-3d-container">
@@ -120,15 +168,7 @@ export default function Map3D({ products, selectedProduct }: Map3DProps) {
             />
             <pointLight position={[-10, 10, -10]} intensity={0.5} />
 
-            {/* Zemin */}
-            <mesh
-              rotation={[-Math.PI / 2, 0, 0]}
-              position={[0, -0.1, 0]}
-              receiveShadow
-            >
-              <planeGeometry args={[20, 20]} />
-              <meshStandardMaterial color="#f5f5f5" />
-            </mesh>
+            <GridPlane onPlaneClick={handlePlaneClick} isSellerMode={isSellerMode} />
 
             {/* Grid çizgileri */}
             {Array.from({ length: 21 }).map((_, i) => (
@@ -174,20 +214,21 @@ export default function Map3D({ products, selectedProduct }: Map3DProps) {
 
             <Entrance3D />
 
-            {stalls.map((stall) => {
+            {stalls.map((stall: any, idx: number) => {
               const isSelected = selectedProduct?.id === stall.id
-              const isCheapest =
-                stall.minPrice ===
-                Math.min(...stalls.map((s) => s.minPrice || Infinity))
+              const isCheapest = stall.minPrice &&
+                stall.minPrice === Math.min(...stalls.map((s: any) => s.minPrice || Infinity))
 
               return (
                 <Stall3D
-                  key={stall.id}
-                  position={[stall.x, stall.y, stall.z]}
+                  key={stall.id || idx}
+                  position={[stall.x, stall.y || 0, stall.z]} // Ensure Y 0 if undef
                   stallNumber={stall.stallNumber || '?'}
-                  productName={stall.name}
+                  productName={stall.name || 'Boş'}
                   isSelected={isSelected}
                   isCheapest={isCheapest}
+                  isSellerMode={isSellerMode}
+                  onClick={() => console.log("Clicked stall")}
                 />
               )
             })}
@@ -202,21 +243,22 @@ export default function Map3D({ products, selectedProduct }: Map3DProps) {
           </Suspense>
         </Canvas>
       </div>
-      <div className="3d-legend">
-        <div className="legend-item">
-          <div className="legend-color" style={{ background: COLORS.SUCCESS }}></div>
-          <span>En Ucuz</span>
+      {!isSellerMode && (
+        <div className="3d-legend">
+          <div className="legend-item">
+            <div className="legend-color" style={{ background: COLORS.SUCCESS }}></div>
+            <span>En Ucuz</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-color" style={{ background: COLORS.WARNING }}></div>
+            <span>Diğer Tezgahlar</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-color" style={{ background: COLORS.ENTRANCE }}></div>
+            <span>Giriş</span>
+          </div>
         </div>
-        <div className="legend-item">
-          <div className="legend-color" style={{ background: COLORS.WARNING }}></div>
-          <span>Diğer Tezgahlar</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color" style={{ background: COLORS.ENTRANCE }}></div>
-          <span>Giriş</span>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
-

@@ -1,91 +1,58 @@
 package com.pazar.backend.service;
 
+import com.pazar.backend.entity.mongo.Market;
+import com.pazar.backend.repository.MarketRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class MarketService {
 
-    private static final Map<String, Map<String, Object>> markets_db = new ConcurrentHashMap<>();
+    private final MarketRepository marketRepository;
+    private final ObjectMapper objectMapper;
 
-    static {
-        initializeDemoData();
-    }
-
-    private static void initializeDemoData() {
-        Map<String, Object> market1 = new HashMap<>();
-        market1.put("id", "market_1");
-        market1.put("name", "Merkez Pazar");
-        market1.put("address", "İstanbul, Kadıköy");
-        market1.put("latitude", 40.9884);
-        market1.put("longitude", 29.0232);
-        market1.put("isOpenToday", true);
-        market1.put("openingHours", "08:00 - 20:00");
-        market1.put("map2D", Map.of(
-            "width", 400,
-            "height", 300,
-            "stalls", Arrays.asList(
-                Map.of("id", "A-12", "x", 120, "y", 80, "z", 0, "type", "Sebze"),
-                Map.of("id", "B-05", "x", 250, "y", 150, "z", 0, "type", "Sebze"),
-                Map.of("id", "A-08", "x", 80, "y", 60, "z", 0, "type", "Sebze")
-            )
-        ));
-        market1.put("map3D", Map.of(
-            "enabled", true,
-            "floorCount", 2,
-            "currentFloor", 0
-        ));
-        markets_db.put("market_1", market1);
-
-        Map<String, Object> market2 = new HashMap<>();
-        market2.put("id", "market_2");
-        market2.put("name", "Şişli Pazarı");
-        market2.put("address", "İstanbul, Şişli");
-        market2.put("latitude", 41.0600);
-        market2.put("longitude", 28.9870);
-        market2.put("isOpenToday", true);
-        market2.put("openingHours", "07:00 - 19:00");
-        market2.put("map2D", Map.of(
-            "width", 500,
-            "height", 400,
-            "stalls", Arrays.asList()
-        ));
-        market2.put("map3D", Map.of(
-            "enabled", true,
-            "floorCount", 1,
-            "currentFloor", 0
-        ));
-        markets_db.put("market_2", market2);
+    public MarketService(MarketRepository marketRepository, ObjectMapper objectMapper) {
+        this.marketRepository = marketRepository;
+        this.objectMapper = objectMapper;
     }
 
     public List<Map<String, Object>> getAllMarkets() {
-        return new ArrayList<>(markets_db.values());
+        return marketRepository.findAll().stream()
+                .map(this::convertToMap)
+                .collect(Collectors.toList());
     }
 
     public Map<String, Object> getMarketById(String marketId) {
-        return markets_db.get(marketId);
+        return marketRepository.findById(marketId)
+                .map(this::convertToMap)
+                .orElse(null);
     }
 
     public Map<String, Object> getMarketMap(String marketId) {
-        Map<String, Object> market = markets_db.get(marketId);
-        if (market == null) return null;
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("marketId", marketId);
-        response.put("marketName", market.get("name"));
-        response.put("map2D", market.get("map2D"));
-        response.put("map3D", market.get("map3D"));
-        
-        return response;
+        return marketRepository.findById(marketId)
+                .map(market -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("marketId", market.getId());
+                    response.put("marketName", market.getName());
+                    response.put("map2D", market.getMap2D());
+                    response.put("map3D", market.getMap3D());
+                    return response;
+                })
+                .orElse(null);
     }
 
     public Map<String, Object> getRoute(String marketId, String stallNumber) {
-        Map<String, Object> market = markets_db.get(marketId);
-        if (market == null) return null;
+        Optional<Market> marketOpt = marketRepository.findById(marketId);
+        if (marketOpt.isEmpty()) return null;
 
-        Map<String, Object> map2D = (Map<String, Object>) market.get("map2D");
+        Market market = marketOpt.get();
+        Map<String, Object> map2D = market.getMap2D();
+        if (map2D == null) return null;
+        
         List<Map<String, Object>> stalls = (List<Map<String, Object>>) map2D.get("stalls");
+        if (stalls == null) return null;
 
         Optional<Map<String, Object>> stallOpt = stalls.stream()
             .filter(s -> s.get("id").equals(stallNumber))
@@ -99,7 +66,7 @@ public class MarketService {
         response.put("location", Map.of(
             "x", stall.get("x"),
             "y", stall.get("y"),
-            "z", stall.get("z")
+            "z", stall.getOrDefault("z", 0)
         ));
         response.put("directions", "Pazar girişinden " + stallNumber + " numaralı tezgaha yürüyün. Konum: X=" + 
                      stall.get("x") + ", Y=" + stall.get("y"));
@@ -110,75 +77,106 @@ public class MarketService {
 
     // Admin CRUD operations
     public Map<String, Object> createMarket(Map<String, Object> marketData) {
-        String id = "market_" + System.currentTimeMillis();
-        Map<String, Object> market = new HashMap<>(marketData);
-        market.put("id", id);
+        Market market = convertToEntity(marketData);
+        if (market.getId() == null) {
+            market.setId("market_" + System.currentTimeMillis());
+        }
         
         // Default map structure if not provided
-        if (!market.containsKey("map2D")) {
-            market.put("map2D", Map.of(
+        if (market.getMap2D() == null) {
+            market.setMap2D(Map.of(
                 "width", 400,
                 "height", 300,
                 "stalls", new ArrayList<>()
             ));
         }
-        if (!market.containsKey("map3D")) {
-            market.put("map3D", Map.of(
+        if (market.getMap3D() == null) {
+            market.setMap3D(Map.of(
                 "enabled", true,
                 "floorCount", 1,
                 "currentFloor", 0
             ));
         }
         
-        markets_db.put(id, market);
-        return market;
+        Market savedMarket = marketRepository.save(market);
+        return convertToMap(savedMarket);
     }
 
     public Map<String, Object> updateMarket(String marketId, Map<String, Object> marketData) {
-        Map<String, Object> existing = markets_db.get(marketId);
-        if (existing == null) return null;
+        if (!marketRepository.existsById(marketId)) return null;
         
-        Map<String, Object> updated = new HashMap<>(existing);
-        updated.putAll(marketData);
-        updated.put("id", marketId); // ID değiştirilemez
-        markets_db.put(marketId, updated);
-        return updated;
+        Market market = convertToEntity(marketData);
+        market.setId(marketId);
+        
+        Market updatedMarket = marketRepository.save(market);
+        return convertToMap(updatedMarket);
     }
 
     public boolean deleteMarket(String marketId) {
-        return markets_db.remove(marketId) != null;
+        if (marketRepository.existsById(marketId)) {
+            marketRepository.deleteById(marketId);
+            return true;
+        }
+        return false;
     }
 
     public Map<String, Object> addStallToMarket(String marketId, Map<String, Object> stallData) {
-        Map<String, Object> market = markets_db.get(marketId);
-        if (market == null) return null;
+        Optional<Market> marketOpt = marketRepository.findById(marketId);
+        if (marketOpt.isEmpty()) return null;
         
-        Map<String, Object> map2D = (Map<String, Object>) market.get("map2D");
-        List<Map<String, Object>> stalls = new ArrayList<>((List<Map<String, Object>>) map2D.get("stalls"));
+        Market market = marketOpt.get();
+        Map<String, Object> map2D = market.getMap2D();
+        
+        // Ensure stalls list exists and is mutable
+        List<Map<String, Object>> stalls;
+        if (map2D.get("stalls") instanceof List) {
+            stalls = new ArrayList<>((List<Map<String, Object>>) map2D.get("stalls"));
+        } else {
+            stalls = new ArrayList<>();
+        }
+        
         stalls.add(new HashMap<>(stallData));
         
+        // Update map2D
         Map<String, Object> updatedMap2D = new HashMap<>(map2D);
         updatedMap2D.put("stalls", stalls);
-        market.put("map2D", updatedMap2D);
+        market.setMap2D(updatedMap2D);
         
+        marketRepository.save(market);
         return stallData;
     }
 
     public boolean removeStallFromMarket(String marketId, String stallId) {
-        Map<String, Object> market = markets_db.get(marketId);
-        if (market == null) return false;
+        Optional<Market> marketOpt = marketRepository.findById(marketId);
+        if (marketOpt.isEmpty()) return false;
         
-        Map<String, Object> map2D = (Map<String, Object>) market.get("map2D");
-        List<Map<String, Object>> stalls = new ArrayList<>((List<Map<String, Object>>) map2D.get("stalls"));
+        Market market = marketOpt.get();
+        Map<String, Object> map2D = market.getMap2D();
+        
+        List<Map<String, Object>> stalls;
+        if (map2D.get("stalls") instanceof List) {
+            stalls = new ArrayList<>((List<Map<String, Object>>) map2D.get("stalls"));
+        } else {
+            return false;
+        }
         
         boolean removed = stalls.removeIf(s -> s.get("id").equals(stallId));
         if (removed) {
             Map<String, Object> updatedMap2D = new HashMap<>(map2D);
             updatedMap2D.put("stalls", stalls);
-            market.put("map2D", updatedMap2D);
+            market.setMap2D(updatedMap2D);
+            marketRepository.save(market);
         }
         
         return removed;
+    }
+
+    private Map<String, Object> convertToMap(Market market) {
+        return objectMapper.convertValue(market, Map.class);
+    }
+
+    private Market convertToEntity(Map<String, Object> map) {
+        return objectMapper.convertValue(map, Market.class);
     }
 }
 

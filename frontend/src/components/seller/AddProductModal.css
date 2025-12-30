@@ -1,0 +1,9 @@
+/* AddProductModal.css content merged above or handled here if separate file needed */
+.add-product-modal {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}

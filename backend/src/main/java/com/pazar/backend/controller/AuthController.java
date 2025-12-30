@@ -30,6 +30,8 @@ public class AuthController {
             String role = "USER";
             if ("admin@pazar.com".equals(email) && "123456".equals(password)) {
                 role = "ADMIN";
+            } else if ("seller@pazar.com".equals(email) && "123456".equals(password)) {
+                role = "SELLER";
             } else if ("user@pazar.com".equals(email) && "123456".equals(password)) {
                 role = "USER";
             } else {
