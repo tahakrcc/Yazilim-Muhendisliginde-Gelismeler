@@ -14,13 +14,14 @@ interface Map3DProps {
   marketData?: any
 }
 
-function Stall3D({
+const WALL_HEIGHT = 4;
+
+function DetailedStall({
   position,
   stallNumber,
   productName,
   isSelected,
   isCheapest,
-  isSellerMode,
   onClick
 }: {
   position: [number, number, number]
@@ -28,73 +29,126 @@ function Stall3D({
   productName: string
   isSelected: boolean
   isCheapest: boolean
-  isSellerMode?: boolean
   onClick?: () => void
 }) {
+  const roofColor = isSelected ? '#E65100' : (isCheapest ? '#2E7D32' : '#F57C00');
+
   return (
     <group position={position}>
-      <mesh
-        position={[0, 1, 0]}
-        onClick={(e) => {
-          e.stopPropagation()
-          if (onClick) onClick()
-        }}
-        castShadow
-        receiveShadow
-      >
-        <boxGeometry args={[2, 2, 2]} />
-        <meshStandardMaterial
-          color={isSellerMode ? '#9E9E9E' : (isSelected ? COLORS.WARNING : isCheapest ? COLORS.SUCCESS : COLORS.WARNING)}
-          metalness={0.3}
-          roughness={0.4}
-        />
+      {/* Table Legs */}
+      <mesh position={[-0.8, 0.5, -0.8]} castShadow>
+        <boxGeometry args={[0.2, 1, 0.2]} />
+        <meshStandardMaterial color="#8D6E63" />
       </mesh>
+      <mesh position={[0.8, 0.5, -0.8]} castShadow>
+        <boxGeometry args={[0.2, 1, 0.2]} />
+        <meshStandardMaterial color="#8D6E63" />
+      </mesh>
+      <mesh position={[-0.8, 0.5, 0.8]} castShadow>
+        <boxGeometry args={[0.2, 1, 0.2]} />
+        <meshStandardMaterial color="#8D6E63" />
+      </mesh>
+      <mesh position={[0.8, 0.5, 0.8]} castShadow>
+        <boxGeometry args={[0.2, 1, 0.2]} />
+        <meshStandardMaterial color="#8D6E63" />
+      </mesh>
+
+      {/* Table Top */}
+      <mesh position={[0, 1.1, 0]} castShadow receiveShadow onClick={(e) => { e.stopPropagation(); onClick?.(); }}>
+        <boxGeometry args={[2, 0.2, 2]} />
+        <meshStandardMaterial color="#D7CCC8" />
+      </mesh>
+
+      {/* Roof Support */}
+      <mesh position={[0, 2, 0]}>
+        <boxGeometry args={[0.1, 2, 0.1]} />
+        <meshStandardMaterial color="#8D6E63" />
+      </mesh>
+
+      {/* Roof (Awning) */}
+      <mesh position={[0, 3, 0]} rotation={[0, 0, Math.PI / 4]} castShadow>
+        <cylinderGeometry args={[1.5, 1.5, 2.5, 3]} />
+        <meshStandardMaterial color={roofColor} />
+      </mesh>
+
       <Text
-        position={[0, 2.5, 0]}
-        fontSize={0.3}
+        position={[0, 1.5, 1.1]}
+        fontSize={0.4}
         color={isSelected ? '#F57C00' : '#333'}
         anchorX="center"
         anchorY="middle"
+        outlineWidth={0.02}
+        outlineColor="#fff"
       >
         {stallNumber}
       </Text>
       <Text
-        position={[0, -0.5, 0]}
-        fontSize={0.2}
-        color="#666"
+        position={[0, 0.5, 1.1]}
+        fontSize={0.3}
+        color="#333"
         anchorX="center"
         anchorY="middle"
       >
-        {productName.substring(0, 10)}
+        {productName.substring(0, 12)}
       </Text>
+    </group>
+  )
+}
+
+function MarketWalls() {
+  return (
+    <group>
+      {/* Back Wall */}
+      <mesh position={[0, WALL_HEIGHT / 2, -10.5]} receiveShadow>
+        <boxGeometry args={[21, WALL_HEIGHT, 1]} />
+        <meshStandardMaterial color="#E0E0E0" />
+      </mesh>
+      {/* Front Wall (with opening) */}
+      <mesh position={[-6, WALL_HEIGHT / 2, 10.5]} receiveShadow>
+        <boxGeometry args={[9, WALL_HEIGHT, 1]} />
+        <meshStandardMaterial color="#E0E0E0" />
+      </mesh>
+      <mesh position={[6, WALL_HEIGHT / 2, 10.5]} receiveShadow>
+        <boxGeometry args={[9, WALL_HEIGHT, 1]} />
+        <meshStandardMaterial color="#E0E0E0" />
+      </mesh>
+      {/* Top lintel for entrance */}
+      <mesh position={[0, 3.5, 10.5]} receiveShadow>
+        <boxGeometry args={[3, 1, 1]} />
+        <meshStandardMaterial color="#E0E0E0" />
+      </mesh>
+
+      {/* Left Wall */}
+      <mesh position={[-10.5, WALL_HEIGHT / 2, 0]} receiveShadow>
+        <boxGeometry args={[1, WALL_HEIGHT, 22]} />
+        <meshStandardMaterial color="#E0E0E0" />
+      </mesh>
+      {/* Right Wall */}
+      <mesh position={[10.5, WALL_HEIGHT / 2, 0]} receiveShadow>
+        <boxGeometry args={[1, WALL_HEIGHT, 22]} />
+        <meshStandardMaterial color="#E0E0E0" />
+      </mesh>
     </group>
   )
 }
 
 function Entrance3D() {
   return (
-    <group position={[-8, 0, -8]}>
-      <mesh position={[0, 0.5, 0]}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color={COLORS.ENTRANCE} />
-      </mesh>
+    <group position={[0, 0, 12]}>
       <Text
         position={[0, 1.5, 0]}
-        fontSize={0.3}
+        fontSize={0.8}
         color={COLORS.ENTRANCE}
         anchorX="center"
         anchorY="middle"
       >
-        Giriş
+        GİRİŞ
       </Text>
     </group>
   )
 }
 
 function GridPlane({ onPlaneClick, isSellerMode }: { onPlaneClick: (point: THREE.Vector3) => void, isSellerMode?: boolean }) {
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  // Removed unused useThree
-
   return (
     <mesh
       rotation={[-Math.PI / 2, 0, 0]}
@@ -102,7 +156,6 @@ function GridPlane({ onPlaneClick, isSellerMode }: { onPlaneClick: (point: THREE
       receiveShadow
       onClick={(e) => {
         if (!isSellerMode) return
-        // e.point is the Vector3 of intersection
         onPlaneClick(e.point)
       }}
     >
@@ -114,8 +167,6 @@ function GridPlane({ onPlaneClick, isSellerMode }: { onPlaneClick: (point: THREE
 
 export default function Map3D({ products, selectedProduct, onMapClick, isSellerMode, marketData }: Map3DProps) {
   const [currentFloor, setCurrentFloor] = useState(0)
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  // Removed unused ref
 
   // Use marketData stalls if available, else derive from products
   const stalls = marketData?.map3D?.stalls || marketData?.map2D?.stalls || products
@@ -159,11 +210,11 @@ export default function Map3D({ products, selectedProduct, onMapClick, isSellerM
       <div className="canvas-container">
         <Canvas shadows>
           <Suspense fallback={null}>
-            <PerspectiveCamera makeDefault position={[15, 15, 15]} />
-            <ambientLight intensity={0.5} />
+            <PerspectiveCamera makeDefault position={[12, 12, 12]} />
+            <ambientLight intensity={0.6} />
             <directionalLight
-              position={[10, 10, 5]}
-              intensity={1}
+              position={[10, 20, 10]}
+              intensity={1.2}
               castShadow
             />
             <pointLight position={[-10, 10, -10]} intensity={0.5} />
@@ -212,6 +263,7 @@ export default function Map3D({ products, selectedProduct, onMapClick, isSellerM
               </line>
             ))}
 
+            <MarketWalls />
             <Entrance3D />
 
             {stalls.map((stall: any, idx: number) => {
@@ -220,14 +272,13 @@ export default function Map3D({ products, selectedProduct, onMapClick, isSellerM
                 stall.minPrice === Math.min(...stalls.map((s: any) => s.minPrice || Infinity))
 
               return (
-                <Stall3D
+                <DetailedStall
                   key={stall.id || idx}
-                  position={[stall.x, stall.y || 0, stall.z]} // Ensure Y 0 if undef
+                  position={[stall.x, stall.y || 0, stall.z]}
                   stallNumber={stall.stallNumber || '?'}
                   productName={stall.name || 'Boş'}
                   isSelected={isSelected}
                   isCheapest={isCheapest}
-                  isSellerMode={isSellerMode}
                   onClick={() => console.log("Clicked stall")}
                 />
               )
@@ -244,7 +295,7 @@ export default function Map3D({ products, selectedProduct, onMapClick, isSellerM
         </Canvas>
       </div>
       {!isSellerMode && (
-        <div className="3d-legend">
+        <div className="map-3d-legend">
           <div className="legend-item">
             <div className="legend-color" style={{ background: COLORS.SUCCESS }}></div>
             <span>En Ucuz</span>

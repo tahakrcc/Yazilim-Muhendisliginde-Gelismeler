@@ -1,34 +1,42 @@
 .header {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
-  padding: 24px;
-  color: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 24px 32px;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1400px;
+  max-width: 1800px;
   margin: 0 auto;
 }
 
-.header-content > div:first-child {
+.header-content>div:first-child {
   text-align: left;
 }
 
 .header-content h1 {
-  font-size: 2.5rem;
-  margin-bottom: 8px;
+  font-size: 2rem;
+  margin-bottom: 4px;
   font-weight: 700;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(to right, #818cf8, #c084fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.5px;
 }
 
 .header-content p {
-  font-size: 1.1rem;
-  opacity: 0.95;
-  font-weight: 300;
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 .header-auth {
@@ -39,51 +47,74 @@
 
 .login-button-header {
   padding: 0.75rem 1.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
-  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
+  font-weight: 500;
 }
 
 .login-button-header:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.15);
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.03);
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
 }
 
 .user-email {
   font-weight: 500;
+  color: var(--text-main);
 }
 
 .user-role {
-  font-size: 0.9rem;
-  opacity: 0.8;
+  font-size: 0.8rem;
+  color: var(--accent);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(245, 158, 11, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .logout-button {
-  padding: 0.5rem 1rem;
-  background: rgba(244, 67, 54, 0.8);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  padding: 0.4rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .logout-button:hover {
-  background: rgba(244, 67, 54, 1);
+  background: rgba(239, 68, 68, 0.2);
 }
 
+.admin-btn-header {
+  padding: 0.4rem 1rem;
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.admin-btn-header:hover {
+  background: rgba(124, 58, 237, 0.25);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
+}

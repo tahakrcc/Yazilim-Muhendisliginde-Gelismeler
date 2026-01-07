@@ -5,14 +5,17 @@ import Map3D from './Map3D'
 import { formatPrice } from '../../utils'
 import './MapView.css'
 
+// MapViewProps Update
 interface MapViewProps {
   products: Product[]
   selectedProduct: Product | null
+  onSelectProduct?: (product: Product) => void
 }
 
 export default function MapView({
   products,
   selectedProduct,
+  onSelectProduct
 }: MapViewProps) {
   const [activeTab, setActiveTab] = useState<'2d' | '3d'>('2d')
 
@@ -35,7 +38,11 @@ export default function MapView({
 
       <div className="map-content">
         {activeTab === '2d' ? (
-          <Map2D products={products} selectedProduct={selectedProduct} />
+          <Map2D
+            products={products}
+            selectedProduct={selectedProduct}
+            onStallClick={onSelectProduct}
+          />
         ) : (
           <Map3D products={products} selectedProduct={selectedProduct} />
         )}

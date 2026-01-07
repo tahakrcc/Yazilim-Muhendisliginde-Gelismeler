@@ -28,6 +28,22 @@ services:
     networks:
       - pazar-network
 
+  mcp-service:
+    build:
+      context: ./mcp-service
+      dockerfile: Dockerfile
+    container_name: pazar-mcp-service
+    ports:
+      - "8000:8000"
+    networks:
+      - pazar-network
+    environment:
+      - GEMINI_API_KEY=AIzaSyCGZ5AE72_Yr7prqXBjGvocT2gZpT-DgJQ
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    restart: unless-stopped
+
   mongodb:
     image: mongo:latest
     container_name: pazar-mongodb
@@ -45,4 +61,5 @@ networks:
 
 volumes:
   mongodb_data:
+
 

@@ -196,3 +196,6 @@ Bu proje eğitim amaçlı geliştirilmiştir.
 ---
 
 **Not:** Bu proje pazarlarda ürün arama ve konum yönlendirme için geliştirilmiş bir demo uygulamasıdır.
+
+- Derste yaptığımız örnekteki gibi MCP servisi hazırlama. Servisin içerisinde en az 1 tane "tool" fonksiyonu olması. herhangi bir işlem olabilir. toplama işlemi bile. ayrı bir repo da olabilir.
+- Servisinizde Open API olarak python'da "request" kullanarak public API adresindeki uzak bir adresten sorgu atabilmesi. (MCP İçinde kullanmanız zorunlu değil, eski uygulamanızda olabilir)

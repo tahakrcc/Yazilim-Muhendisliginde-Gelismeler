@@ -8,11 +8,12 @@ interface Map2DProps {
   products: Product[]
   selectedProduct: Product | null
   onMapClick?: (x: number, y: number) => void
+  onStallClick?: (product: Product) => void
   isSellerMode?: boolean
   marketData?: any
 }
 
-export default function Map2D({ products, selectedProduct, onMapClick, isSellerMode, marketData }: Map2DProps) {
+export default function Map2D({ products, selectedProduct, onMapClick, onStallClick, isSellerMode, marketData }: Map2DProps) {
   const stageRef = useRef<any>(null)
 
   useEffect(() => {
@@ -20,41 +21,61 @@ export default function Map2D({ products, selectedProduct, onMapClick, isSellerM
   }, [products, selectedProduct, marketData])
 
   // If marketData provided, use its stalls. Otherwise fallback to deriving from products (legacy/search mode)
-  const stalls = marketData?.map2D?.stalls || products
-    .filter((p) => p.location)
-    .map((product) => ({
-      ...product,
-      x: product.location!.x,
-      y: product.location!.y,
-      // Map legacy product structure to stalls structure if needed
-      id: product.id, // or generated ID
-      name: product.name,
-      stallNumber: product.stallNumber
-    }))
+  // Ensure we map to Product type cleanly
+  const stalls = (marketData?.map2D?.stalls || (products.length > 0 ? products : generateMockStalls())).map((product: Product) => ({
+    ...product,
+    // Ensure accurate pixel positioning. If product has existing x/y (legacy mock pixels), use them directly?
+    // Or if it has location object {x,y} (grid coords), convert to pixels.
+    // Let's assume location object is the source of truth for grid coords.
+    x: (product.location?.x || 0) * MAP_CONFIG.GRID_SIZE + MAP_CONFIG.GRID_SIZE / 2,
+    y: (product.location?.y || 0) * MAP_CONFIG.GRID_SIZE + MAP_CONFIG.GRID_SIZE / 2,
+    id: product.id,
+    name: product.name,
+    stallNumber: product.stallNumber || `T-${product.id}`
+  }))
+
+  function generateMockStalls(): Product[] {
+    // Generate some dummy stalls for visual context if no search is active
+    const dummies: Product[] = []
+    // Create a few rows of stalls
+    for (let row = 1; row < 5; row++) {
+      for (let col = 1; col < 8; col++) {
+        // Skip some to make it look organic
+        if ((row + col) % 3 === 0) continue;
+        dummies.push({
+          id: `mock-${row}-${col}`,
+          name: 'Boş Tezgah',
+          location: { x: col, y: row, z: 0 },
+          stallNumber: `A-${row}${col}`,
+          category: 'Genel',
+          unit: 'adet',
+          minPrice: 0,
+          vendorName: 'Müsait' // Valid property from Product interface
+        })
+      }
+    }
+    return dummies;
+  }
 
   const handleStageClick = (e: any) => {
     if (!isSellerMode || !onMapClick) return
 
-    // Clicked on empty space?
-    // Convert click position to grid coordinates
     const stage = e.target.getStage()
     const pointerPosition = stage.getPointerPosition()
 
-    // Snap to grid
-    const x = Math.floor(pointerPosition.x / MAP_CONFIG.GRID_SIZE) * MAP_CONFIG.GRID_SIZE + MAP_CONFIG.GRID_SIZE / 2
-    const y = Math.floor(pointerPosition.y / MAP_CONFIG.GRID_SIZE) * MAP_CONFIG.GRID_SIZE + MAP_CONFIG.GRID_SIZE / 2
+    const x = Math.floor(pointerPosition.x / MAP_CONFIG.GRID_SIZE)
+    const y = Math.floor(pointerPosition.y / MAP_CONFIG.GRID_SIZE)
 
-    // Check if occupied
-    // Use a simple distance check or exact grid match
-    const isOccupied = stalls.some((s: any) => Math.abs(s.x - x) < 20 && Math.abs(s.y - y) < 20)
-
-    if (!isOccupied) {
-      onMapClick(x, y)
-    }
+    // Check availability logic...
+    onMapClick(x, y)
   }
 
   const handleStallClick = (stall: any) => {
     console.log('Stall clicked:', stall)
+    if (onStallClick) {
+      // Pass back as a Product object
+      onStallClick(stall)
+    }
   }
 
   return (
@@ -75,7 +96,26 @@ export default function Map2D({ products, selectedProduct, onMapClick, isSellerM
             width={MAP_CONFIG.WIDTH}
             height={MAP_CONFIG.HEIGHT}
             fill="#fff"
-            listening={true} // Catch clicks
+            listening={true}
+          />
+
+          {/* WALLS */}
+          {/* Top Wall */}
+          <Rect x={0} y={0} width={MAP_CONFIG.WIDTH} height={5} fill="#555" />
+          {/* Bottom Wall */}
+          <Rect x={0} y={MAP_CONFIG.HEIGHT - 5} width={MAP_CONFIG.WIDTH} height={5} fill="#555" />
+          {/* Left Wall */}
+          <Rect x={0} y={0} width={5} height={MAP_CONFIG.HEIGHT} fill="#555" />
+          {/* Right Wall */}
+          <Rect x={MAP_CONFIG.WIDTH - 5} y={0} width={5} height={MAP_CONFIG.HEIGHT} fill="#555" />
+
+          {/* Floor Texture / Pattern (Light gray background for active area) */}
+          <Rect
+            x={5} y={5}
+            width={MAP_CONFIG.WIDTH - 10}
+            height={MAP_CONFIG.HEIGHT - 10}
+            fill="#f9f9f9"
+            listening={true}
           />
 
           {/* Grid çizgileri */}

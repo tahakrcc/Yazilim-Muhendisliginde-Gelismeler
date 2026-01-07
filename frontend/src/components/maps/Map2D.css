@@ -2,37 +2,45 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: 24px;
   height: 100%;
+  color: var(--text-main);
 }
 
 .konva-stage {
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
   background: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* Map background might need to stay white for visibility, or be adjusted in Canvas */
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
 }
 
 .map-legend {
   display: flex;
-  gap: 20px;
-  margin-top: 16px;
+  gap: 24px;
+  margin-top: 24px;
   justify-content: center;
   flex-wrap: wrap;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 0.9rem;
-  color: #555;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 .legend-color {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  border: 2px solid #e0e0e0;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-

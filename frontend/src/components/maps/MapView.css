@@ -7,63 +7,76 @@
 
 .map-tabs {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-md);
 }
 
 .tab-btn {
   flex: 1;
   padding: 12px;
-  background: #f0f0f0;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 600;
   font-size: 1rem;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab-btn:hover {
-  background: #e0e0e0;
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .tab-btn.active {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-  color: white;
-  border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  background: var(--card-bg);
+  color: var(--primary);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .map-content {
   flex: 1;
   min-height: 400px;
-  background: #f8f9fa;
-  border-radius: 12px;
+  background: var(--card-bg);
+  /* Or transparent if map canvas handles it */
+  border-radius: var(--radius-lg);
   overflow: hidden;
   position: relative;
+  border: 1px solid var(--glass-border);
 }
 
 .stall-details {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 16px;
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  border: 1px solid var(--glass-border);
 }
 
 .stall-details h3 {
   color: var(--primary);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   font-size: 1.2rem;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 8px;
 }
 
 .detail-card {
-  background: white;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
   padding: 16px;
   margin-bottom: 12px;
+  border: 1px solid var(--glass-border);
 }
 
 .detail-item {
   padding: 8px 0;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--glass-border);
+  color: var(--text-main);
+  display: flex;
+  justify-content: space-between;
 }
 
 .detail-item:last-child {
@@ -71,24 +84,27 @@
 }
 
 .detail-item strong {
-  color: var(--primary);
+  color: var(--text-muted);
   margin-right: 8px;
 }
 
 .route-info {
-  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+  background: rgba(16, 185, 129, 0.1);
   padding: 16px;
-  border-radius: 8px;
-  border-left: 4px solid var(--success);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--secondary);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-left-width: 4px;
 }
 
 .route-info h4 {
-  color: #2e7d32;
+  color: var(--secondary);
   margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .route-info p {
-  color: #555;
+  color: var(--text-main);
   margin: 4px 0;
+  opacity: 0.9;
 }
-

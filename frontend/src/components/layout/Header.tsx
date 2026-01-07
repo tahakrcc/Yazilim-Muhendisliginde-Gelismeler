@@ -1,59 +1,48 @@
-import { useState, useEffect } from 'react'
 import { authService, User } from '../../services/auth'
-import Login from '../auth/Login'
 import './Header.css'
 
-export default function Header() {
-  const [user, setUser] = useState<User | null>(null)
-  const [showLogin, setShowLogin] = useState(false)
+interface HeaderProps {
+  user: User | null
+  onLoginClick: () => void
+  onAdminClick: () => void
+}
 
-  useEffect(() => {
-    const currentUser = authService.getUser()
-    setUser(currentUser)
-  }, [])
-
-  const handleLoginSuccess = () => {
-    const currentUser = authService.getUser()
-    setUser(currentUser)
-  }
+export default function Header({ user, onLoginClick, onAdminClick }: HeaderProps) {
 
   const handleLogout = () => {
     authService.logout()
-    setUser(null)
+    window.location.reload() // Simple way to refresh app state
   }
 
   return (
-    <>
-      <header className="header">
-        <div className="header-content">
-          <div>
-            <h1>🛒 Pazar Yönetim Sistemi</h1>
-            <p>Yapay Zeka Destekli Ürün Arama ve 3D Konum Yönlendirme</p>
-          </div>
-          <div className="header-auth">
-            {user ? (
-              <div className="user-info">
-                <span className="user-email">{user.email}</span>
-                <span className="user-role">({user.role})</span>
-                <button onClick={handleLogout} className="logout-button">
-                  Çıkış
-                </button>
-              </div>
-            ) : (
-              <button onClick={() => setShowLogin(true)} className="login-button-header">
-                Giriş Yap
-              </button>
-            )}
-          </div>
+    <header className="header">
+      <div className="header-content">
+        <div>
+          <h1>🛒 Pazar Yönetim Sistemi</h1>
+          <p>Yapay Zeka Destekli Ürün Arama ve 3D Konum Yönlendirme</p>
         </div>
-      </header>
-      {showLogin && (
-        <Login
-          onLoginSuccess={handleLoginSuccess}
-          onClose={() => setShowLogin(false)}
-        />
-      )}
-    </>
+        <div className="header-auth">
+          {user ? (
+            <div className="user-info">
+              <span className="user-email">{user.email}</span>
+              <span className="user-role">({user.role})</span>
+              {user.role === 'ADMIN' && (
+                <button onClick={onAdminClick} className="admin-btn-header">
+                  Admin Paneli
+                </button>
+              )}
+              <button onClick={handleLogout} className="logout-button">
+                Çıkış
+              </button>
+            </div>
+          ) : (
+            <button onClick={onLoginClick} className="login-button-header">
+              Giriş Yap
+            </button>
+          )}
+        </div>
+      </div>
+    </header>
   )
 }
 

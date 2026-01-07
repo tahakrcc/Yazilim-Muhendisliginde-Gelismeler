@@ -4,73 +4,160 @@
   flex-direction: column;
 }
 
+/* Main container layout */
 .main-container {
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 20px;
-  padding: 20px;
-  max-width: 1600px;
-  margin: 0 auto;
-  width: 100%;
-  flex: 1;
+  grid-template-columns: 400px 1fr;
+  height: calc(100vh - 84px);
+  /* Header height + padding */
+  gap: 24px;
+  overflow: hidden;
 }
 
 .left-panel,
 .right-panel {
-  background: white;
-  border-radius: 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
   padding: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+  height: calc(100vh - 140px);
+  /* Fixed height */
+  overflow: hidden;
+  /* Manage overflow internally */
+}
+
+/* Scrollable areas inside panels should have overflow-y: auto */
+.left-panel {
   overflow-y: auto;
-  max-height: calc(100vh - 140px);
+}
+
+.right-panel {
+  padding: 0;
+  /* Map often needs full width */
+  overflow: hidden;
+  position: relative;
+}
+
+.admin-wrapper {
+  height: calc(100vh - 85px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.back-btn {
+  position: absolute;
+  top: 10px;
+  left: 32px;
+  z-index: 50;
+  padding: 8px 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+.back-to-home-btn {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  padding: 8px 20px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+}
+
+.back-to-home-btn:hover {
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .admin-toggle {
   padding: 1rem 2rem;
   display: flex;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.95);
-  border-bottom: 1px solid #e0e0e0;
+  /* background: rgba(30, 41, 59, 0.5); */
 }
 
 .admin-toggle button {
-  padding: 0.75rem 1.5rem;
-  background: #4CAF50;
+  padding: 0.75rem 2rem;
+  background: var(--primary);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.3s;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .admin-toggle button:hover {
-  background: #45a049;
+  background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
 }
 
 .admin-toggle button.active {
-  background: #f44336;
+  background: var(--card-bg);
+  /* Or a danger color if it means 'exit' */
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
 }
 
 .admin-toggle button.active:hover {
-  background: #d32f2f;
+  background: #ef4444;
+  /* Red-500 */
+  color: white;
+  border-color: #ef4444;
 }
 
 @media (max-width: 1200px) {
   .main-container {
     grid-template-columns: 1fr;
+    height: auto;
   }
-  
+
   .left-panel,
   .right-panel {
-    max-height: none;
+    height: 600px;
+    /* Min height on mobile */
   }
 }
-

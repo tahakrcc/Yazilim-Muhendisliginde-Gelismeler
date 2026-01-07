@@ -19,6 +19,7 @@ export interface Market {
   longitude: number
   isOpenToday: boolean
   openingHours: string
+  imageUrl?: string // New field for market photo
 }
 
 export interface SearchResponse {
