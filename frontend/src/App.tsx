@@ -106,6 +106,7 @@ function App() {
           </button>
           <AdminPanel userRole={userRole} />
         </div>
+<<<<<<< HEAD
       ) : (
         /* Main Application Views */
         <>
@@ -152,6 +153,15 @@ function App() {
       {!showAdminPanel && (
         <ChatBot onNavigate={handleMarketSelect} />
       )}
+=======
+        <div className="right-panel">
+          <MapView
+            products={products}
+            selectedProduct={selectedProduct}
+          />
+        </div>
+      </div>
+>>>>>>> 5eaf920db321008750aedd4d2053b35d07c27d21
     </div>
   )
 }
